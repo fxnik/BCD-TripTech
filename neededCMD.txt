@@ -1,0 +1,40 @@
+sudo npm i react-draggable
+
+https://github.com/react-grid-layout/react-draggable/blob/HEAD/example/example.js
+https://www.npmjs.com/package/react-draggable
+
+https://create-react-app.dev/docs/deployment/
+
+sudo npm install -g serve
+serve -s build
+
+https://www.npmjs.com/package/react-vanilla-tilt
+https://vx-demo.vercel.app/gallery
+https://openbase.com/js/react-tilt/documentation
+
+npm install react-parallax-tilt
+https://www.npmjs.com/package/react-parallax-tilt
+
+import Tilt from 'react-parallax-tilt';
+
+
+
+import * as L from "leaflet";
+sudo npm i -D redux-devtools-extension
+sudo yarn add redux react-redux
+sudo yarn add redux-devtools-extension
+sudo yarn add redux-thunk
+npm i react-leaflet-markercluster
+sudo npm i @types/react-leaflet-markercluster
+
+https://leaflet-extras.github.io/leaflet-providers/preview/
+https://github.com/danwild/leaflet-velocity
+https://www.npmjs.com/package/react-leaflet-markercluster
+
+polygon.on('contextmenu', function () {
+            alert('contextmenu')
+        });
+
+https://react-redux.js.org/using-react-redux/usage-with-typescript
+https://redux.js.org/api/bindactioncreators
+ 

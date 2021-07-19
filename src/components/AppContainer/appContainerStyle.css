@@ -1,0 +1,9 @@
+
+.a__app-container
+{
+    position: relative;
+    overflow: hidden;
+    width: 100vw;  
+    height: 100vh; 
+    background: rgb(131, 129, 129); 
+}

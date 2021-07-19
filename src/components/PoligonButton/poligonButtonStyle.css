@@ -1,0 +1,14 @@
+
+
+.a__poligon-button
+{
+    background: linear-gradient(to right,rgb(19, 18, 18), #615d5d);
+    width: 38px;
+    border: 1px solid #000;
+    text-align: center;
+    line-height: 32px;
+    font-size: 18px;
+    font-weight: 500;
+    color: rgb(175, 199, 37);
+    transition: 0.3s; 
+}
