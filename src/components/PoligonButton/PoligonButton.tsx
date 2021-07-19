@@ -3,7 +3,7 @@ import React, {FC} from 'react'
 import 'react-leaflet'
 //import * as L from "leaflet";
 import { useTypedSelector } from '../../hooks/useTypedSelector';
-import { useActions } from '../../hooks/useActions';
+//import { useActions } from '../../hooks/useActions';
 
 //import MarkerClusterGroup from "react-leaflet-markercluster";
 

@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import {setMapPointerAction} from '../store/reducers/mapReducer'
+import { setMapPointerAction } from '../store/reducers/mapReducer'
 
 
 export const useActions = () => {

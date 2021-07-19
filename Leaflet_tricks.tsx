@@ -4,9 +4,7 @@ const onDoubleClick = () => {
           animate: true,
           duration: 5
         }
-    );
-
-    
+    ); 
 
     
 
