@@ -5,7 +5,7 @@ import React, {FC, useEffect} from 'react';
 
 import AppContainer from './components/AppContainer/AppContainer'
 import LeafletMap from './components/LeafletMap/LeafletMap'
-import GeoTool from './components/GeoTool/GeoTool'
+//import GeoTool from './components/GeoTool/GeoTool'
 
 import './App.css';
 
@@ -15,8 +15,9 @@ import './App.css';
 const App: FC = () => {
   return (
      <AppContainer>
-         <GeoTool />
-         <LeafletMap />       
+         <LeafletMap />
+         
+                
 
      </AppContainer>
   );

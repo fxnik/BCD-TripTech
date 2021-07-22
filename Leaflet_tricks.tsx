@@ -1,4 +1,4 @@
-const onDoubleClick = () => {
+c/* onst onDoubleClick = () => {
     map.flyTo([44.15, -133.23], 7, 
         {
           animate: true,
@@ -51,7 +51,27 @@ const onDoubleClick = () => {
       markers.clearLayers();
       L.geoJson()
       markers.addLayer(layer);
-	  markers.addTo(myMap);
+	  markers.addTo(myMap); */
+
+      //===============================================================
+
+      /* 
+       var circle = L.circle([51.505, -0.09], 100).addTo(map!);
+
+        circle.on({
+          mousedown: function () {
+            map!.dragging.disable();
+
+            map!.on('mousemove', function (e: any) {
+              circle.setLatLng(e.latlng);
+            });
+          }
+       }); 
+       map!.on('mouseup',function(e){
+         map!.dragging.enable();
+         map!.removeEventListener('mousemove');
+       }) 
+      */
       
 
 

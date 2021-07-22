@@ -1,5 +1,5 @@
 interface IMapState {
-    mapPointer: L.Map | null;   
+    mapPointer: any //L.Map | null;   
 }
 
 
@@ -10,7 +10,7 @@ export enum MapActionTypes {
 
 interface SetMapPointerAction {
     type: MapActionTypes.SET_MAP_POINTER
-    payload: L.Map;
+    payload: any //L.Map;
 }
 
 
@@ -37,7 +37,7 @@ export const mapReducer = (state = initialState, action: MapAction)=> {
 
 //================================= ACTION CREATORS ============================================
 
-export const setMapPointerAction = (payload: L.Map): MapAction => ({
+export const setMapPointerAction = (payload:  any /* L.Map */): MapAction => ({
     type: MapActionTypes.SET_MAP_POINTER, 
     payload: payload
 })
