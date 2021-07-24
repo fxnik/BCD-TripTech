@@ -5,7 +5,7 @@ import { mapReducer } from './mapReducer'
 //====================================================
 
 export const rootReducer = combineReducers({
-    map: mapReducer    
+    app: mapReducer    
 })
 
 export type RootState = ReturnType<typeof rootReducer>

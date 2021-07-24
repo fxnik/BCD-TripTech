@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom';
 import {  Marker, Popup } from 'react-leaflet'
 import * as L from "leaflet";
 import Draggable, {DraggableCore} from 'react-draggable';
-import PoligonButton from '../PoligonButton/PoligonButton'
-
 import './geoToolStyle.css'
 
 //=======================================================
@@ -16,7 +14,7 @@ const GeoTool: FC = () => {
         <Draggable handle=".a__geo-tool" >
             
             <div className="a__geo-tool">                
-                <PoligonButton />
+                
                 
                 <div>                    
                     <span className="a__icon" title="Draw a polyline"><i className="fas fa-chart-line"></i></span>                                        
