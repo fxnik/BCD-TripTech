@@ -1,13 +1,23 @@
 import L from 'leaflet'
 
 //-----------------------------------------
+export interface IMapRegion {
+    leaflet_id: number;
+    regionLayer: any;
+    name: string;
+    description: string;
+}
 
 interface IAppState {
     mapPointer: L.DrawMap | null; 
     viewPanelIsOpened: boolean;
     unsavedLayersIsOpened: boolean;
     savedLayersIsOpened: boolean;
+
     mapLayers: any[];
+
+    currentRegionId: number;
+    onMapRegions: IMapRegion[];
 }
 
 
@@ -16,11 +26,15 @@ export enum AppActionTypes {
     SET_VIEW_PANEL_IS_OPENED = "SET_VIEW_PANEL_IS_OPENED",
     SET_UNSAVED_LAYERS_IS_OPENED = "SET_UNSAVED_LAYERS_IS_OPENED",
     SET_SAVED_LAYERS_IS_OPENED = "SET_SAVED_LAYERS_IS_OPENED",
-    ADD_MAP_LAYER = "ADD_MAP_LAYERS",
-    REMOVE_MAP_LAYER = "REMOVE_MAP_LAYERS",
-    UPDATE_LAYER_AFTER_CUTTING = "UPDATE_LAYER_AFTER_CUTTING"
+    ADD_LAYER_TO_REGION = "ADD_LAYER_TO_REGION",
+    REMOVE_REGION = "REMOVE_REGION",
+    UPDATE_REGION_AFTER_CUTTING = "UPDATE_REGION_AFTER_CUTTING",
+    SET_CURRENT_REGION_ID = "SET_CURRENT_REGION_ID",
+    ADD_NEW_REGION = "ADD_NEW_REGION",
+    REMOVE_REGION_ITEM = "REMOVE_REGION_ITEM"
 }
 
+//-----------------------------------------------------------------
 
 interface ISetMapPointerAction {
     type: AppActionTypes.SET_MAP_POINTER
@@ -42,28 +56,47 @@ interface ISetSavedLayersIsOpenedAction {
     payload: boolean;
 }
 
-interface IAddMapLayerAction {
-    type: AppActionTypes.ADD_MAP_LAYER
-    payload: object;
+interface IAddLayerToRegionAction {
+    type: AppActionTypes.ADD_LAYER_TO_REGION
+    payload: L.Polygon | L.Polyline | L.Circle | L.Marker | L.Rectangle;
 }
 
-interface IRemoveMapLayerAction {
-    type: AppActionTypes.REMOVE_MAP_LAYER
+interface IRemoveRegionAction {
+    type: AppActionTypes.REMOVE_REGION
     payload: number;
 }
 
-interface IUpdateLayerAfterCuttingAction {
-    type: AppActionTypes.UPDATE_LAYER_AFTER_CUTTING
-    payload: [object, number];
+interface IUpdateRegionAfterCuttingAction {
+    type: AppActionTypes.UPDATE_REGION_AFTER_CUTTING
+    payload: [any[], number];
 }
+
+interface ISetCurrentRegionIdAction {
+    type: AppActionTypes.SET_CURRENT_REGION_ID
+    payload: number;
+}
+
+interface IAddNewRegionAction {
+    type: AppActionTypes.ADD_NEW_REGION
+    payload: [IMapRegion, number];
+}
+
+interface IRemoveRegionItemAction {
+    type: AppActionTypes.REMOVE_REGION_ITEM;
+    payload: number;
+}
+
 
 export type AppAction =  ISetMapPointerAction
                        | ISetViewPanelIsOpenedAction
                        | ISetUnsavedLayersIsOpenedAction
                        | ISetSavedLayersIsOpenedAction
-                       | IAddMapLayerAction
-                       | IRemoveMapLayerAction
-                       | IUpdateLayerAfterCuttingAction;
+                       | IAddLayerToRegionAction
+                       | IRemoveRegionAction
+                       | IUpdateRegionAfterCuttingAction
+                       | ISetCurrentRegionIdAction
+                       | IAddNewRegionAction
+                       | IRemoveRegionItemAction;
 
 //======================================================
 
@@ -72,7 +105,9 @@ const initialState: IAppState = {
     viewPanelIsOpened: false,
     unsavedLayersIsOpened: true,
     savedLayersIsOpened: false,
-    mapLayers: []
+    mapLayers: [],
+    currentRegionId: -1,
+    onMapRegions: []
 }
 
 //------------------------------------------------------
@@ -80,36 +115,79 @@ const initialState: IAppState = {
 export const mapReducer = (state = initialState, action: AppAction)=> {
     switch (action.type) {
       case AppActionTypes.SET_MAP_POINTER:
-          return {...state, mapPointer: action.payload}   
+          return {...state, mapPointer: action.payload} 
           
+      //----------------------------------------------------------          
       case AppActionTypes.SET_VIEW_PANEL_IS_OPENED:
           return {...state, viewPanelIsOpened: action.payload} 
-          
+
+      //----------------------------------------------------------    
       case AppActionTypes.SET_UNSAVED_LAYERS_IS_OPENED:
           return {...state, unsavedLayersIsOpened: action.payload}
 
+      //----------------------------------------------------------
       case AppActionTypes.SET_SAVED_LAYERS_IS_OPENED:
           return {...state, savedLayersIsOpened: action.payload}
-          
-      case AppActionTypes.ADD_MAP_LAYER:
-          return {...state, mapLayers: [action.payload, ...state.mapLayers]}
 
-      case AppActionTypes.REMOVE_MAP_LAYER:
+      //----------------------------------------------------------    
+      case AppActionTypes.ADD_LAYER_TO_REGION:
+          let newOnMapRegions =  state.onMapRegions.map((obj:IMapRegion)=>{
+             if(obj.leaflet_id === state.currentRegionId){
+               obj.regionLayer.addLayer(action.payload)
+               console.log('new item= ', obj)
+             }
+             return obj
+          })
+          return {...state, onMapRegions: [...newOnMapRegions]}
+
+      //----------------------------------------------------------
+      case AppActionTypes.REMOVE_REGION:
           return {...state, 
-                     mapLayers: state.mapLayers.filter((obj)=> {
-                      return obj.layer_id !== action.payload
-                     })
+                      onMapRegions: state.onMapRegions.filter((obj)=> {
+                      return obj.leaflet_id !== action.payload
+                     }),
+                     currentRegionId: action.payload === state.currentRegionId ? -1 : state.currentRegionId 
+                 }
+      //----------------------------------------------------------
+      case AppActionTypes.UPDATE_REGION_AFTER_CUTTING:
+          let prev_layer_id = action.payload[1]
+          let new_layer_arr = action.payload[0]
+
+          let newMapRegions =  state.onMapRegions.map((obj:IMapRegion)=>{
+            if(obj.leaflet_id === state.currentRegionId){
+              obj.regionLayer.removeLayer(prev_layer_id)
+
+              new_layer_arr.forEach((element)=>{
+                obj.regionLayer.addLayer(element)
+              })             
+            }
+            return obj
+          })
+          return {...state, onMapRegions: [...newMapRegions]} 
+
+       //----------------------------------------------------------
+        /* case AppActionTypes.SET_CURRENT_REGION_ID:
+          return {...state, currentRegionId: action.payload } */
+
+       //----------------------------------------------------------  
+       case AppActionTypes.ADD_NEW_REGION:
+          let newCurrentRegionId = action.payload[1]          
+          let newRegionObj = action.payload[0]
+          return {
+                   ...state, 
+                   currentRegionId: newCurrentRegionId,
+                   onMapRegions: [...state.onMapRegions, newRegionObj]
                  }
 
-      case AppActionTypes.UPDATE_LAYER_AFTER_CUTTING:
-          let prev_layer_id = action.payload[1]
-          let new_obj = action.payload[0]
-
-          let new_obj_arr = state.mapLayers.filter((obj)=> {
-                return obj.layer_id !== prev_layer_id
-          })          
-
-          return {...state, mapLayers: [new_obj, ...new_obj_arr]}
+       //---------------------------------------------------------
+        case AppActionTypes.REMOVE_REGION_ITEM:
+          let newArr =  state.onMapRegions.map((obj:IMapRegion)=>{
+            if(obj.leaflet_id === state.currentRegionId){
+              obj.regionLayer.removeLayer(action.payload)
+            }
+            return obj
+          })
+          return {...state, onMapRegions: [...newArr]} 
 
       default:
           return state
@@ -139,17 +217,33 @@ export const setSavedLayersIsOpenedAction = (payload: boolean): AppAction => ({
     payload: payload
 })
 
-export const addMapLayerAction = (payload: object): AppAction => ({
-    type: AppActionTypes.ADD_MAP_LAYER, 
+export const addLayerToRegionAction = (payload: L.Polygon | L.Polyline | L.Circle | L.Marker | L.Rectangle): AppAction => ({
+    type: AppActionTypes.ADD_LAYER_TO_REGION, 
     payload: payload
 })
 
-export const removeMapLayerAction = (payload: number): AppAction => ({
-    type: AppActionTypes.REMOVE_MAP_LAYER, 
+export const removeRegionAction = (payload: number): AppAction => ({
+    type: AppActionTypes.REMOVE_REGION, 
     payload: payload
 })
 
-export const updateLayerAfterCuttingAction = (payload: [object, number]): AppAction => ({
-    type: AppActionTypes.UPDATE_LAYER_AFTER_CUTTING, 
+export const updateRegionAfterCuttingAction = (payload: [object[], number]): AppAction => ({
+    type: AppActionTypes.UPDATE_REGION_AFTER_CUTTING, 
     payload: payload
 })
+
+export const setCurrentRegionIdAction = (payload: number): AppAction => ({
+    type: AppActionTypes.SET_CURRENT_REGION_ID, 
+    payload: payload
+})
+
+export const addNewRegionAction = (payload: [IMapRegion, number]): AppAction => ({
+    type: AppActionTypes.ADD_NEW_REGION, 
+    payload: payload
+})
+
+export const removeRegionItemAction = (payload: number): AppAction => ({
+    type: AppActionTypes.REMOVE_REGION_ITEM, 
+    payload: payload
+})
+

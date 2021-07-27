@@ -4,9 +4,12 @@ import { setMapPointerAction,
          setViewPanelIsOpenedAction,
          setUnsavedLayersIsOpenedAction,
          setSavedLayersIsOpenedAction,
-         addMapLayerAction,
-         removeMapLayerAction,
-         updateLayerAfterCuttingAction
+         addLayerToRegionAction,
+         removeRegionAction,
+         updateRegionAfterCuttingAction,
+         setCurrentRegionIdAction,
+         addNewRegionAction,
+         removeRegionItemAction
        } from '../store/reducers/mapReducer'
 
 
@@ -18,8 +21,11 @@ export const useActions = () => {
                                 setViewPanelIsOpenedAction,
                                 setUnsavedLayersIsOpenedAction,
                                 setSavedLayersIsOpenedAction,
-                                addMapLayerAction,
-                                removeMapLayerAction,
-                                updateLayerAfterCuttingAction
+                                addLayerToRegionAction,
+                                removeRegionAction,
+                                updateRegionAfterCuttingAction,
+                                setCurrentRegionIdAction,
+                                addNewRegionAction,
+                                removeRegionItemAction
                               }, dispatch)
 }

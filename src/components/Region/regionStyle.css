@@ -1,0 +1,80 @@
+
+.a__region
+{
+    position: relative;
+    width:calc(100% - 8px);
+    min-height: 50px;
+    background: rgb(255, 255, 255);
+    margin: 7px auto 0 auto;
+    border-radius: 4px;
+    box-shadow: 0.5px 1.5px 3px  rgb(49, 49, 49);
+    font-size: 12px;
+    padding-bottom: 1px;
+}
+
+.a__region > .a__region-header
+{
+    position: relative;
+    width: 100%;
+    height: 15px;
+    /* background: rgb(129, 128, 128); */
+    background: rgb(14, 140, 172);
+    color: #fff;
+    /* padding-left: 2px; */
+    border-radius: 4px 4px 0 0;
+}
+
+.a__region > .a__tool-panel
+{
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 20px;
+    background: rgb(231, 230, 230);
+    color: rgb(121, 119, 119);
+    padding: 2px;
+    font-size: 8px;
+    /* line-height: 15px; */
+    border-bottom: 1px solid rgb(194, 193, 193);    
+}
+
+.a__region > .a__region-header > .a__saved-idicator > .fas
+{
+    color: rgb(255, 6, 6);
+    font-size: 10px;
+    margin: 0 3px 0 3px;
+}
+
+.a__region > .a__tool-panel > .a__btn
+{
+   position: relative;
+   width: 16px;
+   height: 16px;
+   border: 0px solid rgb(134, 133, 133);
+   border-radius: 2px;
+   /* background: #fff; */
+   background: transparent;
+   margin: 0 2px 0 1px;
+}
+
+
+.a__region > .a__tool-panel > .a__btn > .fas
+{
+   position: absolute;
+   line-height: 15px;
+   width: 100%;
+   height: 100%;   
+   font-size: 12px;
+   text-align: center;
+   color: rgb(95, 92, 92);
+   transition: 0.5s;
+   cursor: pointer;
+}
+
+.a__region > .a__tool-panel > .a__btn > .fas:hover
+{
+    color: rgb(22, 22, 22); 
+    font-size: 15px;
+    
+}

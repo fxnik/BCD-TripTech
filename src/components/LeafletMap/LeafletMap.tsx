@@ -2,13 +2,14 @@ import React, {FC, useEffect} from 'react'
 //import { MapContainer, TileLayer } from 'react-leaflet'
 //import {useDispatch, useSelector} from 'react-redux'
 //import { setMapPointerAction, setMapLayersAction } from '../../store/reducers/mapReducer';
-//import { useTypedSelector } from '../../hooks/useTypedSelector';
+import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useActions } from '../../hooks/useActions';
 
 //import $ from 'jquery'
 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css'
+
 
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -31,17 +32,21 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 //=================================================================
 
-const LeafletMap: FC = () => {    
+const LeafletMap: FC = () => { 
+    
+    const { currentRegionId, mapPointer } = useTypedSelector(state => state.app)
     
     const {setMapPointerAction, 
-           addMapLayerAction,
-           updateLayerAfterCuttingAction,
-           removeMapLayerAction
+           addLayerToRegionAction,
+           updateRegionAfterCuttingAction,
+           removeRegionItemAction
           } = useActions()
 
     const setMapPointer = (map: L.DrawMap) => {
         setMapPointerAction(map)
     }  
+
+    //----------------------------------------------------------------
     
      //MAP INIT BEGIN
      useEffect(()=>{        
@@ -66,63 +71,128 @@ const LeafletMap: FC = () => {
             drawRectangle: true, 
             drawMarker: false    
         };       
-        map.pm.addControls(options);
+        map.pm.addControls(options);        
 
-        //-------------------------------------------------------------
-
-        //Cut mode
-        map.on('pm:cut', (event: any) => {
-            console.log('pm:cut= ' ,event);
-
-            event.layer.on('pm:remove', (event: any) => {
-                console.log('pm:remove= ' ,event);
-
-                removeMapLayerAction(event.layer._leaflet_id)
-            });            
-
-            let prev_leaflet_id: number = event.originalLayer._leaflet_id
-
-            let new_obj: object = {
-                layer_id: event.layer._leaflet_id, 
-                layer: event.layer,
-                shape: event.shape,
-                typeEvent: event.type,
-                isSavedInBd: false
-            }
-
-            updateLayerAfterCuttingAction([new_obj, prev_leaflet_id])
-        }); 
-
-
-        map.on('pm:create', function(event: any) {
-            console.log('pm:create-event',  event)
-            console.log('e1.shape = ', event.shape)          
-
-
-            if(event.shape === "Polygon" || event.shape === "Rectangle" || event.shape === "Line" || event.shape === "Circle") {
-                const obj: object = {
-                    layer_id: event.layer._leaflet_id, 
-                    layer: event.layer,
-                    shape: event.shape,
-                    typeEvent: event.type,
-                    isSavedInBd: false
-                }
-                addMapLayerAction(obj)            
-
-                event.layer.on('pm:remove', (event: any) => {
-                    console.log('pm:remove= ' ,event);
-
-                    removeMapLayerAction(event.layer._leaflet_id)
-                });
-            }           
-        });
-        
-        //...................................
+        //--------------------------
 
         setMapPointer(map)        
     }, [])    
     //MAP INIT END 
 
+    //--------------------------------------------------------------------
+
+    useEffect(()=>{
+        mapPointer?.on('pm:create', function(event: any) {
+            console.log('pm:create-event',  event)             
+            
+            if(currentRegionId === -1) {
+                alert('Создайте новый регион или выберите существующий')
+                event.layer.remove()
+                return
+            }
+            
+            /* event.layer.bindTooltip(event.shape + '-' + event.layer._leaflet_id.toString(),
+                        {
+                            permanent: false 
+                        })
+                       .openTooltip(); */
+
+
+            if(event.shape === "Polygon" || event.shape === "Rectangle" || event.shape === "Line" || event.shape === "Circle") {
+            
+                event.layer.on('pm:remove', (event: any) => {
+                  console.log('pm:remove= ' ,event);
+                  removeRegionItemAction(event.layer._leaflet_id)
+                });  
+
+                addLayerToRegionAction(event.layer) 
+            }           
+        });
+
+        return ()=>{mapPointer?.off('pm:create')}
+
+    }, [currentRegionId, mapPointer])
+
+    //--------------------------------------------------------------------
+
+    useEffect(()=>{
+        //Cut mode
+        mapPointer?.on('pm:cut', (event: any) => {
+            console.log('pm:cut event= ' ,event); 
+
+            if(currentRegionId === -1) { //must be completed
+                alert('(pm:cut-event) Create or select region.')
+                event.layer.remove()
+                return
+            }
+
+            //------------------------------------------------
+            
+            let new_layer_arr = []
+            
+            //------------------------------------------------
+
+             if(event.originalLayer.pm._shape === "Line") {                
+                let polyline:any;
+
+                for(let layer of Object.keys(event.layer._layers)){
+                    console.log('layer= ', event.layer._layers[layer])
+
+                    polyline = L.polyline(event.layer._layers[layer]._latlngs, event.originalLayer.options).addTo(mapPointer);
+                    
+                    /* polyline.bindTooltip("Line" + '-' + polyline._leaflet_id.toString(),
+                    {
+                        permanent: false 
+                    })
+                    .openTooltip(); */
+
+                    polyline.on('pm:remove', (event: any) => {
+                        console.log('pm:remove= ' ,event);        
+                        removeRegionItemAction(event.layer._leaflet_id)
+                    }); 
+
+                    new_layer_arr.push(polyline)
+                } 
+
+                let prev_leaflet_id: number = event.originalLayer._leaflet_id 
+                event.layer.remove()
+                updateRegionAfterCuttingAction([new_layer_arr, prev_leaflet_id])                 
+            }            
+            
+            //-------------------------------------------------------------------
+
+             if(event.originalLayer.pm._shape === "Polygon" || event.originalLayer.pm._shape === "Rectangle") {                
+                let polygon:any;
+
+                for(let i=0; i < (event.layer._latlngs).length; i++){ 
+                    
+                    polygon = L.polygon(event.layer._latlngs[i], event.originalLayer.options).addTo(mapPointer);
+
+                    /* polygon.bindTooltip("Polygon" + '-' + polygon._leaflet_id.toString(),
+                    {
+                        permanent: false 
+                    })
+                    .openTooltip(); */
+
+                    polygon.on('pm:remove', (event: any) => {
+                        console.log('pm:remove= ' ,event);        
+                        removeRegionItemAction(event.layer._leaflet_id)
+                    }); 
+
+                    new_layer_arr.push(polygon)
+                }     
+
+                let prev_leaflet_id: number = event.originalLayer._leaflet_id 
+                event.layer.remove()
+                updateRegionAfterCuttingAction([new_layer_arr, prev_leaflet_id]) 
+            }             
+        }); 
+
+        return ()=>{mapPointer?.off('pm:cut')}
+
+    }, [currentRegionId, mapPointer])
+
+    //--------------------------------------------------------------------
 
     return (        
         <div id="map"  className="a__leaflet-map" >                   
@@ -133,39 +203,4 @@ const LeafletMap: FC = () => {
 
 export default LeafletMap
 
-
-//mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-
-/* map.on('pm:create', function(e1: any) {
-    console.log('pm:create event',  e1)
-    console.log('Layers = ', map.pm.getGeomanLayers(false))            
-  
-    e1.layer.on('click', function(e2: any){
-        console.log('click on ', e2)
-  
-        let latlng = e2.latlng
-        console.log('LatLng=', latlng)
-
-        //e2.target.remove()                
-  
-        L.marker(latlng).addTo(map);                
-    })            
-  }); */
-
-
-  /* <MapContainer 
-                center={[51.505, -0.09]} 
-                zoom={13} 
-                scrollWheelZoom={true} 
-                whenCreated={setMapPointer} 
-                doubleClickZoom={false} 
-                zoomControl={false}
-                //ref={mapRef}                           
-            >
-                <TileLayer
-                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-               
-            </MapContainer> */
 
