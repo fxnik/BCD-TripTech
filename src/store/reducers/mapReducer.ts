@@ -134,7 +134,7 @@ export const mapReducer = (state = initialState, action: AppAction)=> {
           let newOnMapRegions =  state.onMapRegions.map((obj:IMapRegion)=>{
              if(obj.leaflet_id === state.currentRegionId){
                obj.regionLayer.addLayer(action.payload)
-               console.log('new item= ', obj)
+               //console.log('new item= ', obj)
              }
              return obj
           })
@@ -166,8 +166,8 @@ export const mapReducer = (state = initialState, action: AppAction)=> {
           return {...state, onMapRegions: [...newMapRegions]} 
 
        //----------------------------------------------------------
-        /* case AppActionTypes.SET_CURRENT_REGION_ID:
-          return {...state, currentRegionId: action.payload } */
+       case AppActionTypes.SET_CURRENT_REGION_ID:
+          return {...state, currentRegionId: action.payload } 
 
        //----------------------------------------------------------  
        case AppActionTypes.ADD_NEW_REGION:

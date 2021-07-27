@@ -90,7 +90,7 @@ const ViewPanel: FC = () => {
                {currentRegionId > 0 ? 
                   <div className={unsavedLayersIsOpened ? "a__create-region-btn" : "a__create-region-btn a__disabled"} 
                        title="create new region"
-                       onClick={()=>{alert('Complete editing current region')}}
+                       onClick={()=>{alert('Завершите редактирование региона')}}
                   >
                       <i className="fas fa-plus"></i>
                   </div>
@@ -101,9 +101,7 @@ const ViewPanel: FC = () => {
                   >
                      <i className="fas fa-plus"></i>
                   </div>   
-               }
-
-               
+               }               
            </div> 
 
            {/* ======================================================= */}

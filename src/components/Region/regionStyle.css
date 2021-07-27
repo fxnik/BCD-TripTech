@@ -5,11 +5,12 @@
     width:calc(100% - 8px);
     min-height: 50px;
     background: rgb(255, 255, 255);
-    margin: 7px auto 0 auto;
+    margin: 7px auto 20px auto;
     border-radius: 4px;
     box-shadow: 0.5px 1.5px 3px  rgb(49, 49, 49);
     font-size: 12px;
     padding-bottom: 1px;
+    transition: 0.5s;
 }
 
 .a__region > .a__region-header
@@ -41,7 +42,7 @@
 
 .a__region > .a__region-header > .a__saved-idicator > .fas
 {
-    color: rgb(255, 6, 6);
+    color: rgb(56, 255, 6);
     font-size: 10px;
     margin: 0 3px 0 3px;
 }
@@ -75,6 +76,56 @@
 .a__region > .a__tool-panel > .a__btn > .fas:hover
 {
     color: rgb(22, 22, 22); 
-    font-size: 15px;
-    
+    font-size: 15px;    
+}
+
+.a__region >.a__comments
+{
+   position: relative;
+   overflow-y: hidden;
+   width: 100%;
+   height: 0px;   
+   background: rgb(25, 165, 175);   
+   transition: 0.5s; 
+   box-shadow: inset 0px 2px 3px rgb(75, 74, 74);  
+}
+
+.a__region >.a__comments.a__opened
+{
+   height: 50px;  
+}
+
+
+.a__region >.a__comments > span
+{
+    position: relative;
+    display: inline-block;
+    margin: 7px 0 2px 4px; 
+    font-size: 10px; 
+    color: #fff;
+}
+
+
+.a__region >.a__comments > input
+{  
+   position: relative;
+   width: calc(100% - 8px);
+   outline: none;
+   margin: 4px;
+   border: 1px solid rgb(136, 133, 133);
+   border-radius: 4px; 
+   padding-left: 4px;  
+}
+
+.a__region > .a__region-items
+{
+    position: relative;
+    width: 100%;
+
+}
+
+.a__region > .a__region-items.a__narrowed
+{
+   overflow-y: hidden;
+   height: 25px;
 }
