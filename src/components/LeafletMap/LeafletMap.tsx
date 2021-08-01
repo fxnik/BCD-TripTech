@@ -1,20 +1,11 @@
 import React, {FC, useEffect} from 'react'
-//import { MapContainer, TileLayer } from 'react-leaflet'
-//import {useDispatch, useSelector} from 'react-redux'
-//import { setMapPointerAction, setMapLayersAction } from '../../store/reducers/mapReducer';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useActions } from '../../hooks/useActions';
-
-//import $ from 'jquery'
-
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css'
 
-
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-import 'react-leaflet'
 
 import '@geoman-io/leaflet-geoman-free';  
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';  
@@ -34,7 +25,9 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 const LeafletMap: FC = () => { 
     
-    const { currentRegionId, mapPointer } = useTypedSelector(state => state.app)
+    const { currentRegionId, 
+            mapPointer,
+            onMapRegions } = useTypedSelector(state => state.app)
     
     const {setMapPointerAction, 
            addLayerToRegionAction,
@@ -71,7 +64,8 @@ const LeafletMap: FC = () => {
             drawRectangle: true, 
             drawMarker: false    
         };       
-        map.pm.addControls(options);        
+        map.pm.addControls(options); 
+        //map.pm.toggleControls(); //invisible      
 
         //--------------------------
 
@@ -83,13 +77,7 @@ const LeafletMap: FC = () => {
 
     useEffect(()=>{
         mapPointer?.on('pm:create', function(event: any) {
-            console.log('pm:create-event',  event)             
-            
-            if(currentRegionId === -1) {
-                alert('Создайте новый регион или выберите существующий')
-                event.layer.remove()
-                return
-            }
+            console.log('pm:create-event',  event)           
             
             /* event.layer.bindTooltip(event.shape + '-' + event.layer._leaflet_id.toString(),
                         {
@@ -101,7 +89,8 @@ const LeafletMap: FC = () => {
             if(event.shape === "Polygon" || event.shape === "Rectangle" || event.shape === "Line" || event.shape === "Circle") {
             
                 event.layer.on('pm:remove', (event: any) => {
-                  console.log('pm:remove= ' ,event);
+                  console.log('pm:remove= ' ,event);                
+
                   removeRegionItemAction(event.layer._leaflet_id)
                 });  
 
@@ -111,20 +100,14 @@ const LeafletMap: FC = () => {
 
         return ()=>{mapPointer?.off('pm:create')}
 
-    }, [currentRegionId, mapPointer])
+    }, [mapPointer])
 
     //--------------------------------------------------------------------
 
     useEffect(()=>{
         //Cut mode
         mapPointer?.on('pm:cut', (event: any) => {
-            console.log('pm:cut event= ' ,event); 
-
-            if(currentRegionId === -1) { //must be completed
-                alert('(pm:cut-event) Create or select region.')
-                event.layer.remove()
-                return
-            }
+            console.log('pm:cut event= ' ,event);
 
             //------------------------------------------------
             
@@ -147,7 +130,8 @@ const LeafletMap: FC = () => {
                     .openTooltip(); */
 
                     polyline.on('pm:remove', (event: any) => {
-                        console.log('pm:remove= ' ,event);        
+                        console.log('pm:remove= ' ,event);                     
+                        
                         removeRegionItemAction(event.layer._leaflet_id)
                     }); 
 
@@ -175,7 +159,8 @@ const LeafletMap: FC = () => {
                     .openTooltip(); */
 
                     polygon.on('pm:remove', (event: any) => {
-                        console.log('pm:remove= ' ,event);        
+                        console.log('pm:remove= ' ,event);                       
+
                         removeRegionItemAction(event.layer._leaflet_id)
                     }); 
 
@@ -190,7 +175,31 @@ const LeafletMap: FC = () => {
 
         return ()=>{mapPointer?.off('pm:cut')}
 
-    }, [currentRegionId, mapPointer])
+    }, [mapPointer])
+
+    //------------------------------------------
+
+    useEffect(()=>{
+        if(currentRegionId === -1 && mapPointer?.pm.controlsVisible()) 
+            mapPointer?.pm.toggleControls();
+
+        if(currentRegionId !== -1 && !mapPointer?.pm.controlsVisible()) 
+            mapPointer?.pm.toggleControls(); 
+
+        }, [currentRegionId, mapPointer])
+
+    //----------------------------------------------
+
+    useEffect(()=>{
+        onMapRegions.forEach((obj)=>{
+            if(currentRegionId !== -1 && currentRegionId === obj.leaflet_id) {
+                mapPointer?.addLayer(obj.regionLayer);                
+            } else {
+                mapPointer?.removeLayer(obj.regionLayer);                
+            }
+        })
+
+    }, [currentRegionId, onMapRegions, mapPointer])
 
     //--------------------------------------------------------------------
 

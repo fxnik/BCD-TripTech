@@ -46,6 +46,8 @@ const Region: FC<IRegion> = ({obj}) => {
         let answer:boolean = window.confirm("Вы действительно хотите остановить редактирование?");
         if(!answer) return 
 
+        //map?.pm.toggleControls();
+
         console.log('stop editing')
         setCurrentRegionIdAction(-1)
     }
@@ -53,6 +55,8 @@ const Region: FC<IRegion> = ({obj}) => {
     const startRegionEditing = (obj: any)=>{
         let answer:boolean = window.confirm("Вы действительно хотите начать редактирование?");
         if(!answer) return 
+
+        //map?.pm.toggleControls();
 
         console.log('start editing', obj.leaflet_id)
         setCurrentRegionIdAction(obj.leaflet_id)

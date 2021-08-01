@@ -36,7 +36,8 @@
 
 .a__view-panel > .a__top-box > .a__unsaved-layers-btn,
 .a__view-panel > .a__top-box > .a__saved-layers-btn,
-.a__view-panel > .a__top-box > .a__create-region-btn
+.a__view-panel > .a__top-box > .a__create-region-btn,
+.a__view-panel > .a__top-box > .a__sign-out-btn
 {   
    position: relative;
    width: 20px;
@@ -117,7 +118,8 @@
 
 .a__view-panel > .a__top-box > .a__unsaved-layers-btn > .fas,
 .a__view-panel > .a__top-box > .a__saved-layers-btn > .fas,
-.a__view-panel > .a__top-box > .a__create-region-btn > .fas
+.a__view-panel > .a__top-box > .a__create-region-btn > .fas,
+.a__view-panel > .a__top-box > .a__sign-out-btn > .fas
 {
     position: absolute;
     width: 100%;

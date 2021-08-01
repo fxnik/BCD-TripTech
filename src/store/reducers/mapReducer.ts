@@ -146,7 +146,8 @@ export const mapReducer = (state = initialState, action: AppAction)=> {
                       onMapRegions: state.onMapRegions.filter((obj)=> {
                       return obj.leaflet_id !== action.payload
                      }),
-                     currentRegionId: action.payload === state.currentRegionId ? -1 : state.currentRegionId 
+                     currentRegionId: action.payload === state.currentRegionId ? -1 
+                     : state.currentRegionId 
                  }
       //----------------------------------------------------------
       case AppActionTypes.UPDATE_REGION_AFTER_CUTTING:
@@ -174,8 +175,7 @@ export const mapReducer = (state = initialState, action: AppAction)=> {
           let newCurrentRegionId = action.payload[1]          
           let newRegionObj = action.payload[0]
           return {
-                   ...state, 
-                   currentRegionId: newCurrentRegionId,
+                   ...state,                  
                    onMapRegions: [...state.onMapRegions, newRegionObj]
                  }
 

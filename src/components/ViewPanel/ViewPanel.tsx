@@ -11,10 +11,8 @@ import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import Region from '../Region/Region'
 
 import './viewPanelStyle.css'
-//import { setUnsavedLayersIsOpenedAction } from '../../store/reducers/mapReducer';
 
 //==================================================================
-
 
 const ViewPanel: FC = () => {
     const { 
@@ -67,6 +65,11 @@ const ViewPanel: FC = () => {
                            ])
     }
 
+    const signOutHandler = () => {
+        alert('sign out')
+
+    }
+
     //.........................................................
     
     return (
@@ -101,7 +104,16 @@ const ViewPanel: FC = () => {
                   >
                      <i className="fas fa-plus"></i>
                   </div>   
-               }               
+               }
+
+               <div className={"a__sign-out-btn"} 
+                    title="sign out"
+                    onClick={signOutHandler}
+               >
+                  <i className="fas fa-sign-out-alt"></i>
+               </div>  
+
+
            </div> 
 
            {/* ======================================================= */}
@@ -130,5 +142,5 @@ const ViewPanel: FC = () => {
 export default ViewPanel
 
 
-//mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+
 

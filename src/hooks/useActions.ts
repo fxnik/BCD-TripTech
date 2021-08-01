@@ -12,6 +12,11 @@ import { setMapPointerAction,
          removeRegionItemAction
        } from '../store/reducers/mapReducer'
 
+import {setUserIsAuthorizedAction,
+
+       } from '../store/reducers/authReducer'
+
+       
 
 export const useActions = () => {
     const dispatch = useDispatch()
@@ -26,6 +31,9 @@ export const useActions = () => {
                                 updateRegionAfterCuttingAction,
                                 setCurrentRegionIdAction,
                                 addNewRegionAction,
-                                removeRegionItemAction
+                                removeRegionItemAction,
+
+                                //-----------------------------
+                                setUserIsAuthorizedAction
                               }, dispatch)
 }

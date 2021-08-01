@@ -1,0 +1,146 @@
+
+
+.a__auth-form-container
+{
+    position: relative;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    background: rgb(255, 255, 255);
+}
+
+.a__auth-form
+{
+    position: relative;
+    overflow: hidden;
+    width: 300px;
+    
+    height: 250px;
+    /* background: rgb(245, 190, 119); */
+    background: linear-gradient(to bottom, #fccc74, #ec8b4a);
+    box-shadow: 1px 2px 7px #111;
+    border-radius: 7px;
+    padding: 10px; 
+}
+
+
+
+
+
+.a__auth-form > span
+{    
+    position: relative; 
+    font-size: 24px;
+    color: rgb(90, 89, 89);
+    font-weight: bold;
+}
+
+.a__auth-form > .a__email
+{
+  position: relative;
+  margin-top: 20px;
+  /* border: 1px solid #111; */
+  
+
+}
+
+.a__auth-form > .a__email > span
+{
+    color: rgb(95, 92, 92);
+    font-size: 12px;
+}
+
+.a__auth-form > .a__email > input
+{
+    position: relative;
+    display: block;
+    margin-top: 5px;
+    outline: none;
+    border-radius: 4px;
+    border: 0;
+    height: 30px;
+    width: 100%;
+    padding-left: 5px;
+    font-size: 14px;        
+}
+
+
+.a__auth-form > .a__password
+{
+  position: relative;
+  margin-top: 15px;
+
+}
+
+.a__auth-form > .a__password > span
+{
+    color: rgb(95, 92, 92);
+    font-size: 12px;
+}
+
+.a__auth-form > .a__password > input
+{
+    position: relative;
+    margin-top: 5px; 
+    outline: none; 
+    border-radius: 4px;
+    border: 0;
+    height: 30px;
+    width: 100%;
+    padding-left: 5px;
+    font-size: 14px;
+}
+
+.a__auth-form > .a__buttons
+{
+   position: absolute;
+   right: 10px;
+   bottom: 20px;
+
+}
+
+.a__auth-form > .a__buttons > .a__sign-btn
+{
+    position: relative;
+    display: inline-block;
+    margin-right: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.a__auth-form > .a__buttons > .a__sign-btn:hover
+{
+    font-size: 16px;
+}
+
+.a__auth-form > .a__buttons > .a__sign-submit-btn
+{
+    position: relative;
+    display: inline-block;
+    font-size: 14px;
+    width: 60px;
+    height: 30px;
+    background: rgb(224, 224, 224);
+    cursor: pointer;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 4px;
+    box-shadow: 1px 2px 4px rgb(77, 76, 76);  
+    transition: 0.3s;  
+}
+
+.a__auth-form > .a__buttons > .a__sign-submit-btn:hover
+{
+    box-shadow: 0px 1px 1px rgb(77, 76, 76); 
+}
+
+.a__invalid
+{
+    /* outline: #ee1d0f solid 4px !important; */
+    background: #fdd3d0;
+    box-shadow: 0 0 10px 2px  rgb(241, 53, 53);
+}
