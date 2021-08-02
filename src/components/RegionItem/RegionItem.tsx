@@ -65,7 +65,7 @@ const RegionItem: FC<any> = ({layer}) => {
 
             <div className="a__tool-panel">
                 <div className="a__btn a__remove-btn" 
-                     title="remove region"
+                     title="remove region item"
                      onClick={()=>removeRegionItemHandler(layer)}
                 >
                    <i className="fas fa-trash-alt"></i>

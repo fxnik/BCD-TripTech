@@ -1,4 +1,14 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
+
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  Redirect 
+} from "react-router-dom";
+
+import { useHistory } from "react-router-dom";
 
 import AppContainer from './components/AppContainer/AppContainer'
 import LeafletMap from './components/LeafletMap/LeafletMap'
@@ -13,28 +23,54 @@ import './App.css';
 
 //----------------------------------------------------------
 
-
 const App: FC = () => {
+  let history = useHistory();
   const { isAuthorized } = useTypedSelector(state => state.auth)
+  const { setUserIsAuthorizedAction, } = useActions() 
+  
+  //console.log('isAuthorized= ', isAuthorized)
 
-  //let userData: string = localStorage.getItem('userData')?.token;
-
-  //if(JSON.parse())
-
-  if(!isAuthorized) return <AuthForm />
+  /**
+   *  to find out if user is already authorized 
+   *  to cancel showing authorization form
+   */
+  useEffect(()=>{
+    let userData: string | null = localStorage.getItem('userData') 
+    if(userData) setUserIsAuthorizedAction(true)        
+  }, [])
+  
+  //------------------------------------------
 
   return (
-     <AppContainer>
-         <LeafletMap />
-         <ViewPanel />
-         <ToggleButton />        
-                
+     <Router>       
+        <Switch>
 
-     </AppContainer>
+          <Route exact  path="/" >
+             {isAuthorized ? <Redirect to="/map" /> : <Redirect to="/auth" />}
+          </Route>
+
+          <Route path="/auth">
+            {isAuthorized ? <Redirect to="/map" /> : <AuthForm />}             
+          </Route>
+
+          <Route path="/map" >
+              {isAuthorized ? 
+                <AppContainer>
+                  <LeafletMap />
+                  <ViewPanel />
+                  <ToggleButton />  
+
+                </AppContainer>
+              : 
+              <Redirect to="/auth" />}             
+          </Route>
+          
+        </Switch>      
+    </Router>
+
+    
   );
-} 
-
-
+}
 
 export default App;
 

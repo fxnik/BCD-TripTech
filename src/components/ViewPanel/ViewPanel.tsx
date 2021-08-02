@@ -2,6 +2,8 @@ import React, {FC, useEffect} from 'react'
 //import {useDispatch, useSelector} from 'react-redux'
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useActions } from '../../hooks/useActions';
+import { useHttp } from '../../hooks/useHttp'
+import { useHistory } from "react-router-dom";
 
 import L from 'leaflet';
 import 'react-leaflet'
@@ -28,8 +30,12 @@ const ViewPanel: FC = () => {
     const { setUnsavedLayersIsOpenedAction,
             setSavedLayersIsOpenedAction,
             setCurrentRegionIdAction,
-            addNewRegionAction        
+            addNewRegionAction,
+            setUserIsAuthorizedAction        
         } = useActions() 
+
+    const {request} = useHttp()
+    let history = useHistory();
 
     //.........................................................    
     
@@ -65,8 +71,33 @@ const ViewPanel: FC = () => {
                            ])
     }
 
-    const signOutHandler = () => {
-        alert('sign out')
+    const logOutHandler = async () => {
+        console.log('sign out')
+
+        let userData: string | null = localStorage.getItem('userData')
+        let token: string;
+
+        if(userData) token = JSON.parse(userData).token
+        else return        
+
+        try {
+            const data = await request('http://127.0.0.1:8000/api/logout', 
+                                      'post',
+                                       {}, 
+                                       {'Authorization': `Bearer ${token}`})  
+            //const data = await request('http://45.84.226.158:5050/api/register', 'post', {...form})         
+            console.log('data= ', data)
+ 
+            if(data.message === 'token_deleted') {
+                localStorage.removeItem('userData');
+                setUserIsAuthorizedAction(false)
+                //history.push("/auth");
+            } else if(data.message === 'user_exists'){
+                alert('User with such email is already exists')
+            }
+         } catch(e) {
+             throw e 
+         }      
 
     }
 
@@ -106,9 +137,9 @@ const ViewPanel: FC = () => {
                   </div>   
                }
 
-               <div className={"a__sign-out-btn"} 
-                    title="sign out"
-                    onClick={signOutHandler}
+               <div className={"a__log-out-btn"} 
+                    title="log out"
+                    onClick={logOutHandler}
                >
                   <i className="fas fa-sign-out-alt"></i>
                </div>  

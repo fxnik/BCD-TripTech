@@ -1,8 +1,10 @@
 import React, {FC, useState, useCallback} from 'react'
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useActions } from '../../hooks/useActions';
+import { useHttp } from '../../hooks/useHttp'
 //import config from 'config'
 import axios from "axios";
+import { useHistory } from "react-router-dom";
 
 import './authFormStyle.css'
 
@@ -14,7 +16,8 @@ const AuthForm: FC = () => {
     const { setUserIsAuthorizedAction, } = useActions()
 
     //------------------------------------------------
-
+    let history = useHistory();
+    const {request} = useHttp()
     const [isSignIn, setSignIn] = useState(true)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
@@ -22,46 +25,13 @@ const AuthForm: FC = () => {
     const [emailIsValid, setEmailValidation] = useState(true)
     const [passwordIsValid, setPasswordValidation] = useState(true)
 
-    //--------------------------------------------
+    //--------------------------------------------------
 
     const toggleSignInHandler = ()=>{
         setSignIn(state => !state)
-    }
+    }   
 
-    //--------------------------------------------
-
-    const request = useCallback(async (url, method = 'get', body = null, headers = {}) => 
-    {
-      try {
-          if(body) {
-              body = JSON.stringify(body)
-              headers['Content-Type'] = 'application/json'
-              headers["Accept"] = 'application/json'
-          }         
-
-          const response = await axios({
-             method: method,
-             url: url,
-             headers: headers,
-             data: body,
-             //timeout: 5000
-          })
-
-          console.log("response= ",response);                                      
-
-          if(response.status !== 200)
-          {
-             throw new Error(response.statusText)
-          }     
-
-          return response.data
-       } catch(e) {         
-           console.log('error', e.message)
-           throw e
-       }
-   }, []) 
-
-   //--------------------------------------------------    
+    //--------------------------------------------------    
 
     const registerHandler = async ()=>{
         if(!form.email){
@@ -81,7 +51,7 @@ const AuthForm: FC = () => {
            console.log('data= ', data)
 
            if(data.message === 'user_created') {
-               alert('User is created. Make sign in')
+               alert('User is created. You may sign in')
            } else if(data.message === 'user_exists'){
                alert('User with such email is already exists')
            }
@@ -113,6 +83,7 @@ const AuthForm: FC = () => {
                 localStorage.setItem('userData', JSON.stringify({userId: data.userId, token: data.token }))  
             
                 setUserIsAuthorizedAction(true)
+                //history.push("/map");
                 //let cat = localStorage.getItem('myCat');
             } else if (data.message === 'unauthorized') {
                 alert('Unauthorized')

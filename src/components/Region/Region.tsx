@@ -9,7 +9,7 @@ import RegionItem from '../RegionItem/RegionItem'
 import './regionStyle.css'
 
 
-//-----------------
+//--------------------------------------
 
 interface IRegion {
    obj:IMapRegion;
@@ -17,6 +17,7 @@ interface IRegion {
 }
 
 //--------------------------------------
+
 const Region: FC<IRegion> = ({obj}) => {
     const { mapPointer: map, 
             currentRegionId } = useTypedSelector(state => state.app)
