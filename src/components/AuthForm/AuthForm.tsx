@@ -3,7 +3,7 @@ import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useActions } from '../../hooks/useActions';
 import { useHttp } from '../../hooks/useHttp'
 //import config from 'config'
-import axios from "axios";
+//import axios from "axios";
 import { useHistory } from "react-router-dom";
 
 import './authFormStyle.css'
@@ -11,16 +11,15 @@ import './authFormStyle.css'
 //--------------------------------
 
 const AuthForm: FC = () => {
-    //const { isAuthorized } = useTypedSelector(state => state.auth)
-
     const { setUserIsAuthorizedAction, } = useActions()
 
     //------------------------------------------------
+
     let history = useHistory();
     const {request} = useHttp()
     const [isSignIn, setSignIn] = useState(true)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(null)
+    const [inProgress, setInProgress] = useState(false)
+    //const [error, setError] = useState(null)
     const [form, setForm] = useState({email:'', password:'' })
     const [emailIsValid, setEmailValidation] = useState(true)
     const [passwordIsValid, setPasswordValidation] = useState(true)
@@ -35,27 +34,36 @@ const AuthForm: FC = () => {
 
     const registerHandler = async ()=>{
         if(!form.email){
-            alert('Email field is empty. Type your email')
+            alert('Поле Email пустое. Введите свой email')
             return
         } else if(!form.password) {
-            alert('Password field is empty. Type your password')
+            alert('Поле Password пустое. Введите свой пароль')
             return
         } else if(!emailIsValid || !passwordIsValid ){
-            alert('Format of your credentials is invalid')
+            alert('Неправильный формат введенных данных')
             return
         }
 
         try {
+           setInProgress(state => true)
+
            const data = await request('http://127.0.0.1:8000/api/register', 'post', {...form})  
            //const data = await request('http://45.84.226.158:5050/api/register', 'post', {...form})         
            console.log('data= ', data)
 
-           if(data.message === 'user_created') {
-               alert('User is created. You may sign in')
+           if(data.isError){
+               setInProgress(state => false)
+               alert('Error: ' + data.message)
+           } else if(data.message === 'user_created') {
+               setInProgress(state => false)
+               alert('Пользователь создан. Вы можете войти')
            } else if(data.message === 'user_exists'){
-               alert('User with such email is already exists')
+               setInProgress(state => false)
+               alert('Введите другой email')
            }
         } catch(e) {
+            setInProgress(state => false)
+            alert('Error: ' + e.message)
             throw e 
         }      
     }
@@ -64,32 +72,40 @@ const AuthForm: FC = () => {
 
     const loginHandler = async () => {
         if(!form.email){
-            alert('Email field is empty. Type your email')
+            alert('Поле Email пустое. Введите свой email')
             return
         } else if(!form.password) {
-            alert('Password field is empty. Type your password')
+            alert('Поле Password пустое. Введите свой пароль')
             return
         } else if(!emailIsValid || !passwordIsValid ){
-            alert('Format of your credentials is invalid')
+            alert('Неправильный формат введенных данных')
             return
         }
 
         try {
+            setInProgress(state => true)
+
             const data = await request('http://127.0.0.1:8000/api/login', 'post', {...form})
             //const data = await request('http://45.84.226.158:5050/api/login', 'post', {...form})
             console.log('data', data)
-            
-            if(data.message === 'authorized') {
+
+            if(data.isError){
+               setInProgress(state => false)
+               alert('Error: ' + data.message)
+            } else if(data.message === 'authorized') {
+                setInProgress(state => false)
                 localStorage.setItem('userData', JSON.stringify({userId: data.userId, token: data.token }))  
             
                 setUserIsAuthorizedAction(true)
-                //history.push("/map");
-                //let cat = localStorage.getItem('myCat');
+                //history.push("/map");                
             } else if (data.message === 'unauthorized') {
-                alert('Unauthorized')
+                setInProgress(state => false)
+                alert('Вы не прошли авторизацию')
             }        
             
           } catch (e) {
+              setInProgress(state => false)
+              alert('Error: ' + e.message)
               throw e 
           }
     }
@@ -136,7 +152,7 @@ const AuthForm: FC = () => {
                 <div className="a__email">
                     <span>Email</span>
                     <input type="text" 
-                           placeholder="type your email" 
+                           placeholder="введите email" 
                            name="email"
                            value={form.email}
                            onChange={changeHandler}                           
@@ -147,7 +163,7 @@ const AuthForm: FC = () => {
                 <div className="a__password">
                     <span>Password</span>
                     <input type="password" 
-                           placeholder="type your password as 8-30 symbols" 
+                           placeholder="введите пароль в виде 8-30 символов" 
                            name="password"
                            value={form.password}
                            onChange={changeHandler}                           
@@ -174,8 +190,12 @@ const AuthForm: FC = () => {
                                 Submit
                             </span>
                         </>
-                    }
-                    
+                    }                    
+                </div>
+
+                <div className={inProgress ? "a__spinner": "a__spinner a__disabled"}> 
+                   <div>Ждите</div>               
+                   <div className="a__lds-dual-ring-auth"></div> 
                 </div>
                 
              </div>

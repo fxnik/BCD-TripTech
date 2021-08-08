@@ -8,8 +8,11 @@
     align-items: center;
     overflow: hidden;
     width: 100vw;
-    height: 100vh;
-    background: rgb(255, 255, 255);
+    height: 100vh;    
+    background-image: url("http://localhost:3000/images/map.jpg");
+    /* background-image: url("http://45.84.226.158/images/map.jpg"); */
+    background-repeat: no-repeat;   
+    background-size: cover;
 }
 
 .a__auth-form
@@ -143,4 +146,65 @@
     /* outline: #ee1d0f solid 4px !important; */
     background: #fdd3d0;
     box-shadow: 0 0 10px 2px  rgb(241, 53, 53);
+}
+
+/* -------------- Spiner ------------------ */
+
+.a__lds-dual-ring-auth 
+{
+    display: inline-block;
+    width: 50px;
+    height: 50px;    
+}
+
+.a__lds-dual-ring-auth:after 
+{
+    content: " ";
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 2px;
+    border-radius: 50%;
+    border: 4px solid rgb(255, 255, 254);
+    border-color: rgb(253, 253, 253) transparent rgb(248, 247, 247) transparent;
+    animation: lds-dual-ring-auth 1.0s linear infinite;
+}
+
+@keyframes lds-dual-ring-auth 
+{
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.a__auth-form > .a__spinner
+{
+    position: absolute;
+    display: flex;
+    justify-content:center;
+    align-items:center;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    margin: 4px; 
+    /* border: 1px solid #111; */ 
+    top: 4px;
+    right: 4px; 
+}
+
+.a__auth-form > .a__spinner.a__disabled
+{
+   display: none;
+}
+
+.a__auth-form > .a__spinner > div
+{
+    position: absolute;
+    z-index: 10;
+    font-size: 12px;
+    color: rgb(253, 253, 253);
+    font-weight: 700;
 }

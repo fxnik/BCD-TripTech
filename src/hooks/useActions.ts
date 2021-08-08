@@ -9,7 +9,8 @@ import { setMapPointerAction,
          updateRegionAfterCuttingAction,
          setCurrentRegionIdAction,
          addNewRegionAction,
-         removeRegionItemAction
+         removeRegionItemAction,
+         updateRegionItemInfoAction
        } from '../store/reducers/mapReducer'
 
 import {setUserIsAuthorizedAction,
@@ -32,6 +33,7 @@ export const useActions = () => {
                                 setCurrentRegionIdAction,
                                 addNewRegionAction,
                                 removeRegionItemAction,
+                                updateRegionItemInfoAction,
 
                                 //-----------------------------
                                 setUserIsAuthorizedAction

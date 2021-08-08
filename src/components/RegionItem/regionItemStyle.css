@@ -3,11 +3,10 @@
 {
     position: relative;
     width:calc(100% - 8px);
-    height: 35px;
+    min-height: 35px;
     background: rgb(240, 240, 240);
     margin: 10px auto 10px auto;
-    border-radius: 4px;
-    /* box-shadow: 0.5px 1.5px 3px  rgb(49, 49, 49); */
+    border-radius: 4px;    
     font-size: 10px;
     transition: 0.2s;
     box-shadow: 0.5px 1.5px 3px  rgb(49, 49, 49);
@@ -40,8 +39,7 @@
     background: rgb(231, 230, 230);
     color: rgb(121, 119, 119);
     padding: 2px;
-    font-size: 8px;
-    /* line-height: 15px; */
+    font-size: 8px;    
     border-bottom: 1px solid rgb(194, 193, 193);
     border-radius: 4px;
 }
@@ -52,8 +50,7 @@
    width: 16px;
    height: 16px;
    border: 0px solid rgb(134, 133, 133);
-   border-radius: 2px;
-   /* background: #fff; */
+   border-radius: 2px;   
    background: transparent;
    margin: 0 2px 0 1px;
 }
@@ -74,6 +71,60 @@
 .a__region-item > .a__tool-panel > .a__btn > .fas:hover
 {
     color: rgb(22, 22, 22); 
-    font-size: 15px;
-    
+    font-size: 15px;    
 }
+
+/* ----------------------------------------------- */
+
+.a__region-item >.a__comments
+{
+   position: relative;
+   overflow-y: hidden;
+   width: 100%;
+   height: 0px;   
+   background: rgb(79, 137, 167);   
+   transition: 0.5s; 
+   box-shadow: inset 0px 2px 3px rgb(75, 74, 74);  
+}
+
+.a__region-item >.a__comments.a__opened
+{
+   height: 65px;  
+}
+
+
+.a__region-item >.a__comments > span
+{
+    position: relative;
+    display: inline-block;
+    margin: 7px 0 2px 4px; 
+    font-size: 10px; 
+    color: #fff;
+}
+
+
+.a__region-item >.a__comments > input
+{  
+   position: relative;
+   width: calc(100% - 8px);
+   outline: none;
+   margin: 4px;
+   border: 1px solid rgb(136, 133, 133);
+   border-radius: 4px; 
+   padding-left: 4px;  
+}
+
+
+.a__region-item >.a__comments > textarea
+{
+    position: relative;
+    width: calc(100% - 8px);
+    outline: none;
+    margin: 4px;
+    border: 1px solid rgb(136, 133, 133);
+    border-radius: 4px; 
+    padding-left: 4px; 
+    resize: none;
+}
+
+

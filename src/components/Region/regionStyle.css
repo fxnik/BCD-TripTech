@@ -40,11 +40,17 @@
     border-bottom: 1px solid rgb(194, 193, 193);    
 }
 
-.a__region > .a__region-header > .a__saved-idicator > .fas
+.a__region > .a__region-header > .a__idicators > .fas
 {
-    color: rgb(56, 255, 6);
+    color: rgb(253, 131, 101);
     font-size: 10px;
     margin: 0 3px 0 3px;
+    transition: 0.3s;
+}
+
+.a__region > .a__region-header > .a__idicators > .fas.a__active
+{
+    color: rgb(74, 231, 113); 
 }
 
 .a__region > .a__tool-panel > .a__btn
@@ -92,7 +98,7 @@
 
 .a__region >.a__comments.a__opened
 {
-   height: 50px;  
+   height: 73px;  
 }
 
 
@@ -115,6 +121,18 @@
    border: 1px solid rgb(136, 133, 133);
    border-radius: 4px; 
    padding-left: 4px;  
+}
+
+.a__region >.a__comments > textarea
+{
+    position: relative;
+    width: calc(100% - 8px);
+    outline: none;
+    margin: 4px;
+    border: 1px solid rgb(136, 133, 133);
+    border-radius: 4px; 
+    padding-left: 4px; 
+    resize: none;
 }
 
 .a__region > .a__region-items

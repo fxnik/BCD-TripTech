@@ -1,11 +1,12 @@
 import L from 'leaflet'
 
-//-----------------------------------------
+
 export interface IMapRegion {
     leaflet_id: number;
-    regionLayer: any;
-    name: string;
-    description: string;
+    regionLayer: any;    
+    regionItemInfo: any[];
+    uuid?: string;
+    info?: string;
 }
 
 interface IAppState {
@@ -31,7 +32,8 @@ export enum AppActionTypes {
     UPDATE_REGION_AFTER_CUTTING = "UPDATE_REGION_AFTER_CUTTING",
     SET_CURRENT_REGION_ID = "SET_CURRENT_REGION_ID",
     ADD_NEW_REGION = "ADD_NEW_REGION",
-    REMOVE_REGION_ITEM = "REMOVE_REGION_ITEM"
+    REMOVE_REGION_ITEM = "REMOVE_REGION_ITEM",
+    UPDATE_REGION_ITEM_INFO = "UPDATE_REGION_ITEM_INFO"
 }
 
 //-----------------------------------------------------------------
@@ -86,6 +88,11 @@ interface IRemoveRegionItemAction {
     payload: number;
 }
 
+interface IUpdateRegionItemInfoAction {
+    type: AppActionTypes.UPDATE_REGION_ITEM_INFO
+    payload: [number, string];
+}
+
 
 export type AppAction =  ISetMapPointerAction
                        | ISetViewPanelIsOpenedAction
@@ -96,7 +103,8 @@ export type AppAction =  ISetMapPointerAction
                        | IUpdateRegionAfterCuttingAction
                        | ISetCurrentRegionIdAction
                        | IAddNewRegionAction
-                       | IRemoveRegionItemAction;
+                       | IRemoveRegionItemAction
+                       | IUpdateRegionItemInfoAction;
 
 //======================================================
 
@@ -131,13 +139,15 @@ export const mapReducer = (state = initialState, action: AppAction)=> {
 
       //----------------------------------------------------------    
       case AppActionTypes.ADD_LAYER_TO_REGION:
+          let layer: any = action.payload
           let newOnMapRegions =  state.onMapRegions.map((obj:IMapRegion)=>{
              if(obj.leaflet_id === state.currentRegionId){
                obj.regionLayer.addLayer(action.payload)
-               //console.log('new item= ', obj)
+               obj.regionItemInfo.push([layer._leaflet_id, "Новый елемент"])
              }
              return obj
           })
+          //console.log('onMapRegions=', state.onMapRegions)
           return {...state, onMapRegions: [...newOnMapRegions]}
 
       //----------------------------------------------------------
@@ -158,20 +168,23 @@ export const mapReducer = (state = initialState, action: AppAction)=> {
             if(obj.leaflet_id === state.currentRegionId){
               obj.regionLayer.removeLayer(prev_layer_id)
 
+              obj.regionItemInfo = obj.regionItemInfo.filter((arr)=> arr[0] !== prev_layer_id)
+
               new_layer_arr.forEach((element)=>{
                 obj.regionLayer.addLayer(element)
+                obj.regionItemInfo.push([element._leaflet_id, "Новый елемент"])
               })             
             }
             return obj
           })
           return {...state, onMapRegions: [...newMapRegions]} 
 
-       //----------------------------------------------------------
-       case AppActionTypes.SET_CURRENT_REGION_ID:
+      //----------------------------------------------------------
+      case AppActionTypes.SET_CURRENT_REGION_ID:
           return {...state, currentRegionId: action.payload } 
 
-       //----------------------------------------------------------  
-       case AppActionTypes.ADD_NEW_REGION:
+      //----------------------------------------------------------  
+      case AppActionTypes.ADD_NEW_REGION:
           let newCurrentRegionId = action.payload[1]          
           let newRegionObj = action.payload[0]
           return {
@@ -179,15 +192,36 @@ export const mapReducer = (state = initialState, action: AppAction)=> {
                    onMapRegions: [...state.onMapRegions, newRegionObj]
                  }
 
-       //---------------------------------------------------------
-        case AppActionTypes.REMOVE_REGION_ITEM:
+      //---------------------------------------------------------
+      case AppActionTypes.REMOVE_REGION_ITEM:
+          let newRegionItemInfoArr
           let newArr =  state.onMapRegions.map((obj:IMapRegion)=>{
             if(obj.leaflet_id === state.currentRegionId){
-              obj.regionLayer.removeLayer(action.payload)
+              newRegionItemInfoArr = obj.regionItemInfo.filter((arr)=> arr[0] !== action.payload)
+              obj.regionItemInfo = newRegionItemInfoArr
+              obj.regionLayer.removeLayer(action.payload)              
+
+              //console.log('REMOVE_REGION_ITEM obj.regionItemInfo=', obj.regionItemInfo)
             }
             return obj
           })
+          
           return {...state, onMapRegions: [...newArr]} 
+
+      //-------------------------------------------------------
+      case AppActionTypes.UPDATE_REGION_ITEM_INFO:
+          let layer_id = action.payload[0]
+          let info_str = action.payload[1]
+
+           state.onMapRegions.forEach((obj: IMapRegion)=>{
+             if(obj.leaflet_id === state.currentRegionId) {
+                 obj.regionItemInfo.forEach((arr)=>{
+                     if(arr[0] ===  layer_id) arr[1] = info_str
+                 })
+             }
+          })
+          //console.log('state.onMapRegions=', state.onMapRegions)
+          return {...state}
 
       default:
           return state
@@ -247,3 +281,8 @@ export const removeRegionItemAction = (payload: number): AppAction => ({
     payload: payload
 })
 
+export const updateRegionItemInfoAction = (payload: [number, string]): AppAction => ({
+    type: AppActionTypes.UPDATE_REGION_ITEM_INFO, 
+    payload: payload
+})
+//

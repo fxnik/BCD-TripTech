@@ -18,7 +18,7 @@ const ToggleButton = () => {
     return (
         <div className={ viewPanelIsOpened? "a__toggle-button a__is-active": "a__toggle-button"} 
              onClick={toggleViewPanel}
-             title="open/close"
+             title="открыть/закрыть"
         >
             <i className="fas fa-exchange-alt"></i>
         </div>

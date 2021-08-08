@@ -3,7 +3,6 @@ import axios from 'axios'
 
 export const useHttp = () => {
 
-
     const request = useCallback(async (url, method = 'get', body = null, headers = {}) => 
     {
       try {
@@ -21,7 +20,7 @@ export const useHttp = () => {
              //timeout: 5000
           })
 
-          console.log("response= ",response);                                      
+          console.log("response= ", response);                                      
 
           if(response.status !== 200)
           {
