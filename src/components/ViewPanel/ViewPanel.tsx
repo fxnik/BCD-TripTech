@@ -82,9 +82,6 @@ const ViewPanel: FC = () => {
         let layerGroup: any = L.layerGroup([])
         layerGroup.addTo(map!)        
 
-        //console.log('layerGroup=', layerGroup)
-        //console.log('layerGroup._leaflet_id=', layerGroup._leaflet_id)
-
         addNewRegionAction([
                              {
                                  leaflet_id: layerGroup._leaflet_id,
@@ -119,7 +116,7 @@ const ViewPanel: FC = () => {
             /* const data = await request('http://45.84.226.158:5050/api/logout', 
                                        'post',
                                         {}, 
-                                        {'Authorization': `Bearer ${token}`}) */         
+                                        {'Authorization': `Bearer ${token}`}) */          
             console.log('data= ', data)
 
             if(data.isError) {
@@ -151,28 +148,199 @@ const ViewPanel: FC = () => {
         }           
 
         try {
-            const data = await request('http://127.0.0.1:8000/api/get_regions_info', 
+            var data = await request('http://127.0.0.1:8000/api/get_regions_info', 
                                       'post',
                                        {}, 
-                                       {'Authorization': `Bearer ${token}`}) 
+                                       {'Authorization': `Bearer ${token}`})  
 
-            /* const data = await request('http://45.84.226.158:5050/api/logout', 
+            /* const data = await request('http://45.84.226.158:5050/api/get_regions_info', 
                                        'post',
                                         {}, 
-                                        {'Authorization': `Bearer ${token}`}) */         
+                                        {'Authorization': `Bearer ${token}`}) */  
+
             console.log('data= ', data)
             
             if(data.isError) {
+               setLoading(state => false) 
                alert('Error: ' + data.message)
-            } else if(data.message === 'done') {                
+            } else if(data.message === 'done') { 
+               setLoading(state => false)                
                setRegionsInfo(state => data.payload)             
             } 
          } catch(e) {
+             setLoading(state => false) 
              alert('Error: ' + e.message)
              throw e 
-         } 
+         }           
+    }
+
+    //---------------------------------------------------------
+
+    const exportHandler = async () => {
+        console.log('Export')
+
+        let answer:boolean = window.confirm("Вы действительно хотите выполнить экспорт ?");
+        if(!answer) return 
+
+        setLoading(state => true)
+
+        let userData: string | null = localStorage.getItem('userData')
+        let token: string;
+
+        if(userData) token = JSON.parse(userData).token
+        else {
+            alert('Токен доступа отсутствует. Пройдите авторизацию')
+            return
+        }
         
-         setLoading(state => false)   
+        try {
+            const data = await request('http://127.0.0.1:8000/api/get_all_regions_geojson', 
+                                      'post',
+                                       {}, 
+                                       {'Authorization': `Bearer ${token}`})  
+
+            /* const data = await request('http://45.84.226.158:5050/api/get_regions_info', 
+                                       'post',
+                                        {}, 
+                                        {'Authorization': `Bearer ${token}`}) */  
+
+            console.log('data= ', data)
+            
+            if(data.isError) {
+               setLoading(state => false) 
+               alert('Error: ' + data.message)
+
+            } else if(data.message === 'done') { 
+               if(data.payload.length === 0) {
+                    alert('В базе данных нет регионов')
+               } else {
+                    let geoJson: any[] = []
+
+                    data.payload.forEach((obj: any) => {
+                        geoJson.push(JSON.parse(obj.geo_json))  
+                    }) 
+                    
+                    console.log('geoJson= ', geoJson) 
+                    
+                    let jsonData = JSON.stringify(geoJson)
+                    let dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(jsonData);
+                    let datenow = new Date()
+                    let datenowstr = datenow.toLocaleDateString('en-GB')
+                    let exportFileDefaultName = 'RegionsArray_'+ datenowstr + '.geojson'
+                    let linkElement = document.createElement('a')
+                    linkElement.setAttribute('href', dataUri)
+                    linkElement.setAttribute('download', exportFileDefaultName)                        
+                    linkElement.click()                       
+               }               
+
+               setLoading(state => false)                             
+            } 
+         } catch(e) {
+             setLoading(state => false) 
+             alert('Error: ' + e.message)             
+             throw e 
+         }
+    }
+
+    //---------------------------------------------------------
+
+    const importHandler = async () => {
+        console.log('Import')
+
+        let answer:boolean = window.confirm("Вы действительно хотите выполнить импорт ?");
+        if(!answer) return        
+
+        let input: HTMLInputElement = document.createElement('input')
+        input.setAttribute('type', "file")        
+            
+        input.addEventListener('change', function() {
+            
+            if (input.files!.length === 1) 
+            {
+                var reader: any = new FileReader(); 
+                
+                //-----------------------------------
+                
+                reader.addEventListener('load', async function() {
+                  var result: any[] = JSON.parse(reader.result);            
+                  console.log('Imported file= ', result);
+                  
+                  if(!Array.isArray(result)) {
+                      alert('Неправильный формат данных файла')
+                      return
+                  }
+
+                  if(result.length < 1) {
+                      alert('В файле нет регионов')
+                      return
+                  }
+
+                  if(result[0][1].type === "FeatureCollection"){
+                    let sending_data: any[] = []
+
+                    result.forEach((arr) => {
+                      sending_data.push([arr[0], JSON.stringify(arr)])
+                    })
+  
+                    console.log('sending_data= ', sending_data)                                    
+  
+                    
+                    let userData: string | null = localStorage.getItem('userData')
+                    let token: string;
+  
+                    if(userData) token = JSON.parse(userData).token
+                    else {
+                        alert('Токен доступа отсутствует. Пройдите авторизацию')
+                        return
+                    }  
+                    
+                    setLoading(state => true) 
+  
+                    try {
+                      let body: object = {                        
+                          file: sending_data
+                      }            
+          
+                      var data = await request('http://127.0.0.1:8000/api/import_regions', 
+                                                'post',
+                                                 body, 
+                                                 {'Authorization': `Bearer ${token}`}) 
+      
+                      /*var data = await request('http://45.84.226.158:5050/api/import_regions', 
+                                          'post',
+                                          body, 
+                                          {'Authorization': `Bearer ${token}`}) */  
+                                          
+                      console.log('data= ', data)
+  
+                      if(data.isError) {
+                          setLoading(state => false)
+                          alert('Error: ' + data.message)
+                      } else if (data.message === 'done'){
+                          setLoading(state => false)        
+                          alert('Регионы сохранен в базу данных')
+                      }   
+                        
+                    } catch(e) {
+                      setLoading(state => false)
+                      alert('Error: ' + e.message)
+                      throw e 
+                    }    
+
+                  } else {
+                    alert('Неправильный формат данных geoJson')
+                    return 
+                  }                              
+                  
+                });
+                //------------------------------------
+                
+                reader.readAsText(input.files![0]); 
+
+            } else alert('Выбирите один файл')
+        });   
+        
+        input.click()     
     }
 
     //.........................................................
@@ -216,7 +384,21 @@ const ViewPanel: FC = () => {
                     onClick={downloadRegionsHandler}
                 >
                   <i className="fas fa-download"></i>
-               </div>  
+               </div> 
+
+               <div className={unsavedLayersIsOpened ? "a__export-btn a__disabled" : "a__export-btn"}  
+                    title="Экспорт"
+                    onClick={exportHandler}
+                >
+                  <i className="fas fa-file-export"></i>
+               </div>
+
+               <div className={unsavedLayersIsOpened ? "a__import-btn a__disabled" : "a__import-btn"}  
+                    title="Импорт"
+                    onClick={importHandler}
+                >
+                  <i className="fas fa-file-import"></i>
+               </div>
 
                <div className={"a__log-out-btn"} 
                     title="Выйти"
@@ -246,16 +428,14 @@ const ViewPanel: FC = () => {
                   <div className="lds-dual-ring"></div> 
                </div>
                
-               {regionsInfo.map((obj:IRegionFromDb, i)=>{
+               {regionsInfo.map((obj:IRegionFromDb, i: number)=>{
                   return <RegionFromDb 
                             info={obj.info} 
                             uuid={obj.uuid} 
                             key={obj.uuid}
                             reloader={()=>setReloadingRegionsFromDb(state=> true)}
                          />
-               })}
-
-               
+               })}   
 
                
                

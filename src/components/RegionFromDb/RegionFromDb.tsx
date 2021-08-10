@@ -44,11 +44,11 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
             const data = await request('http://127.0.0.1:8000/api/delete_region', 
                                       'post',
                                        body, 
-                                       {'Authorization': `Bearer ${token}`}) 
+                                       {'Authorization': `Bearer ${token}`})  
 
             /* const data = await request('http://45.84.226.158:5050/api/delete_region', 
                                        'post',
-                                        {}, 
+                                        body, 
                                         {'Authorization': `Bearer ${token}`}) */         
             console.log('data= ', data)
             
@@ -86,15 +86,16 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
                 uuid: uuid                
             }
 
-            const data = await request('http://127.0.0.1:8000/api/get_one_region', 
+            var data = await request('http://127.0.0.1:8000/api/get_one_region', 
                                       'post',
                                        body, 
                                        {'Authorization': `Bearer ${token}`}) 
 
-            /* const data = await request('http://45.84.226.158:5050/api/delete_region', 
+            /* const data = await request('http://45.84.226.158:5050/api/get_one_region', 
                                        'post',
-                                        {}, 
-                                        {'Authorization': `Bearer ${token}`}) */         
+                                        body, 
+                                        {'Authorization': `Bearer ${token}`}) */  
+
             console.log('data= ', data)
 
             setLoading(state => false) 
@@ -165,7 +166,17 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
                     console.log('pm:remove= ' ,event);                
   
                     removeRegionItemAction(polygon._leaflet_id)
-                }); 
+                });
+                
+                polygon.on('pm:dragend', (event: any) => {
+                    console.log('pm:dragend polygon= ' ,event);  
+                    
+                });
+
+                polygon.on('pm:rotateend', (event: any) => {
+                    console.log('pm:rotateend polygon= ' ,event);  
+                    
+                });
                 
                 layerGroup.addLayer(polygon)
 
@@ -181,7 +192,17 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
                     console.log('pm:remove= ' ,event);                
   
                     removeRegionItemAction(polyline._leaflet_id)
-                }); 
+                });
+                
+                polyline.on('pm:dragend', (event: any) => {
+                    console.log('pm:dragend polyline= ', event);  
+                    
+                });
+
+                polyline.on('pm:rotateend', (event: any) => {
+                    console.log('pm:rotateend polyline= ', event);  
+                    
+                });
 
                 layerGroup.addLayer(polyline)
 
@@ -197,12 +218,18 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
                     console.log('pm:remove= ' ,event);                
   
                     removeRegionItemAction(circle._leaflet_id)
+                });
+                
+                circle.on('pm:dragend', (event: any) => {
+                    console.log('pm:dragend circle= ', event);  
+                    
                 }); 
                 
                 layerGroup.addLayer(circle) 
             } 
         }         
         
+        //console.log('regionItemInfo= ', regionItemInfo)
 
         addNewRegionAction([ {
                                 leaflet_id: layerGroup._leaflet_id,
@@ -227,10 +254,9 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
             <div className={isLoading ? "a__spinner": "a__spinner a__disabled"}>
                 <div>Загрузка ...</div>
                 <div className="a__lds-dual-ring"></div> 
-            </div>
-        
+            </div>        
                             
-           <textarea defaultValue={info} />  
+           <textarea value={info} onChange={()=>{return}}/>  
 
             <div className="a__tool-panel">                
                 <div className="a__btn a__remove-btn" 

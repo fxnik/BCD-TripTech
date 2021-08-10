@@ -63,6 +63,8 @@ const App: FC = () => {
               : 
               <Redirect to="/auth" />}             
           </Route>
+
+          <Redirect to="/" />
           
         </Switch>      
     </Router>

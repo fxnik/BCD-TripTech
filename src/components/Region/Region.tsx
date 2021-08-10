@@ -23,7 +23,7 @@ const Region: FC<IRegion> = ({obj}) => {
     const [regionInfo, setRegionInfo] = useState('Новый регион')
     const [isNarrowed, setIsNarrowed] = useState(false)    
     const [isFromDb, setIsFromBd] = useState(false) 
-    const [isChanged, setIsChanged] = useState(false)  
+    const [isChanged, setIsChanged] = useState(false)    
 
     //--------------------------------------------------------------
 
@@ -34,7 +34,7 @@ const Region: FC<IRegion> = ({obj}) => {
         if(obj.info){
             setRegionInfo(obj.info)
             setIsFromBd(true)            
-        }
+        }        
     }, [])    
 
     //--------------------------------------------------------------
@@ -132,7 +132,9 @@ const Region: FC<IRegion> = ({obj}) => {
                 }
             }
     
-            console.log('regionGeoJson= ', regionGeoJson)            
+            console.log('regionGeoJson= ', regionGeoJson)  
+            
+            var data:any;
 
             if(isFromDb) {
                 let body: object = {
@@ -141,15 +143,15 @@ const Region: FC<IRegion> = ({obj}) => {
                     geo_json: JSON.stringify([regionInfo, regionGeoJson])
                 }            
     
-                var data = await request('http://127.0.0.1:8000/api/update_region', 
-                                          'post',
-                                           body, 
-                                           {'Authorization': `Bearer ${token}`})
+                data = await request('http://127.0.0.1:8000/api/update_region', 
+                                            'post',
+                                            body, 
+                                            {'Authorization': `Bearer ${token}`}) 
 
-                /* const data = await request('http://45.84.226.158:5050/api/update_region', 
-                                           'post',
-                                            {}, 
-                                            {'Authorization': `Bearer ${token}`}) */  
+                /* data = await request('http://45.84.226.158:5050/api/update_region', 
+                                    'post',
+                                    body, 
+                                    {'Authorization': `Bearer ${token}`}) */  
             }
             else{
                 let body: object = {
@@ -157,15 +159,15 @@ const Region: FC<IRegion> = ({obj}) => {
                     geo_json: JSON.stringify([regionInfo, regionGeoJson])
                 }            
     
-                var data = await request('http://127.0.0.1:8000/api/add_region', 
+                data = await request('http://127.0.0.1:8000/api/add_region', 
                                           'post',
                                            body, 
                                            {'Authorization': `Bearer ${token}`})
 
-                /* const data = await request('http://45.84.226.158:5050/api/add_region', 
-                                           'post',
-                                            {}, 
-                                            {'Authorization': `Bearer ${token}`}) */   
+                /* data = await request('http://45.84.226.158:5050/api/add_region', 
+                                    'post',
+                                    body, 
+                                    {'Authorization': `Bearer ${token}`}) */   
             }
                   
             console.log('data= ', data)
@@ -300,7 +302,7 @@ const Region: FC<IRegion> = ({obj}) => {
 
             <div className={isNarrowed ? "a__region-items a__narrowed" : "a__region-items"}>
                 {
-                    obj.regionLayer.getLayers().map((layer:any)=>{                        
+                    obj.regionLayer.getLayers().map((layer:any, i:number)=>{                        
                         let new_arr: any[] = obj.regionItemInfo.filter((arr)=>{
                             return arr[0] === layer._leaflet_id
                         })

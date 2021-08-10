@@ -122,6 +122,16 @@ const LeafletMap: FC = () => {
   
                     removeRegionItemAction(polygon._leaflet_id)
                 }); 
+
+                polygon.on('pm:dragend', (event: any) => {
+                    console.log('pm:dragend polygon= ' ,event);  
+                    
+                });
+
+                polygon.on('pm:rotateend', (event: any) => {
+                    console.log('pm:rotateend polygon= ' ,event);  
+                    
+                });
                 
                 addLayerToRegionAction(polygon)
 
@@ -136,9 +146,20 @@ const LeafletMap: FC = () => {
                     console.log('pm:remove= ' ,event);                
   
                     removeRegionItemAction(rectangle._leaflet_id)
-                }); 
+                });
                 
-                addLayerToRegionAction(rectangle) 
+                rectangle.on('pm:dragend', (event: any) => {
+                    console.log('pm:dragend rectangle= ', event);  
+                    
+                });
+
+                rectangle.on('pm:rotateend', (event: any) => {
+                    console.log('pm:rotateend rectangle= ' ,event);  
+                    
+                });
+                
+                addLayerToRegionAction(rectangle)
+
             } else if(event.shape === "Line") {
                 let polyline: any = L.polyline(event.layer._latlngs, event.layer.options).addTo(mapPointer);
                 polyline.pm._shape = "Line";
@@ -151,8 +172,19 @@ const LeafletMap: FC = () => {
   
                     removeRegionItemAction(polyline._leaflet_id)
                 }); 
+
+                polyline.on('pm:dragend', (event: any) => {
+                    console.log('pm:dragend polyline= ', event);  
+                    
+                });
+
+                polyline.on('pm:rotateend', (event: any) => {
+                    console.log('pm:rotateend polyline= ', event);  
+                    
+                });
                 
                 addLayerToRegionAction(polyline) 
+
             } else if(event.shape === "Circle") {
                 let circle: any = L.circle(event.layer._latlng, event.layer.options).addTo(mapPointer);
                 circle.pm._shape = "Circle";
@@ -164,7 +196,12 @@ const LeafletMap: FC = () => {
                     console.log('pm:remove= ' ,event);                
   
                     removeRegionItemAction(circle._leaflet_id)
-                }); 
+                });
+                
+                circle.on('pm:dragend', (event: any) => {
+                    console.log('pm:dragend circle= ', event);  
+                    
+                });                
                 
                 addLayerToRegionAction(circle) 
             } 
@@ -201,6 +238,16 @@ const LeafletMap: FC = () => {
                         removeRegionItemAction(event.layer._leaflet_id)
                     }); 
 
+                    polyline.on('pm:dragend', (event: any) => {
+                        console.log('pm:dragend polyline= ' ,event);  
+                        
+                    });
+
+                    polyline.on('pm:rotateend', (event: any) => {
+                        console.log('pm:rotateend polyline= ', event);  
+                        
+                    });
+
                     new_layer_arr.push(polyline)
                 } 
 
@@ -223,7 +270,17 @@ const LeafletMap: FC = () => {
                         console.log('pm:remove= ' ,event);                       
 
                         removeRegionItemAction(event.layer._leaflet_id)
-                    }); 
+                    });
+                    
+                    polygon.on('pm:dragend', (event: any) => {
+                        console.log('pm:dragend polygon= ' ,event);  
+                        
+                    });
+
+                    polygon.on('pm:rotateend', (event: any) => {
+                        console.log('pm:rotateend polygon= ', event);  
+                        
+                    });
 
                     new_layer_arr.push(polygon)                         
                 }
@@ -240,7 +297,17 @@ const LeafletMap: FC = () => {
                             console.log('pm:remove= ' ,event);                       
     
                             removeRegionItemAction(event.layer._leaflet_id)
-                        }); 
+                        });
+                        
+                        polygon.on('pm:dragend', (event: any) => {
+                            console.log('pm:dragend polygon= ' ,event);  
+                            
+                        });
+
+                        polygon.on('pm:rotateend', (event: any) => {
+                            console.log('pm:rotateend polygon= ', event);  
+                            
+                        });
     
                         new_layer_arr.push(polygon)
                     }     

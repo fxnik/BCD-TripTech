@@ -9,8 +9,8 @@
     overflow: hidden;
     width: 100vw;
     height: 100vh;    
-    background-image: url("http://localhost:3000/images/map.jpg");
-    /* background-image: url("http://45.84.226.158/images/map.jpg"); */
+    background-image: url("http://localhost:3000/images/map.jpg"); 
+    /* background-image: url("http://45.84.226.158/images/map.jpg");  */
     background-repeat: no-repeat;   
     background-size: cover;
 }

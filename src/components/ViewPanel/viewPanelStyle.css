@@ -38,7 +38,9 @@
 .a__view-panel > .a__top-box > .a__saved-layers-btn,
 .a__view-panel > .a__top-box > .a__create-region-btn,
 .a__view-panel > .a__top-box > .a__log-out-btn,
-.a__view-panel > .a__top-box > .a__download-btn
+.a__view-panel > .a__top-box > .a__download-btn,
+.a__view-panel > .a__top-box > .a__export-btn,
+.a__view-panel > .a__top-box > .a__import-btn
 {   
    position: relative;
    width: 20px;
@@ -108,7 +110,9 @@
 }
 
 .a__view-panel > .a__top-box > .a__create-region-btn.a__disabled,
-.a__view-panel > .a__top-box > .a__download-btn.a__disabled
+.a__view-panel > .a__top-box > .a__download-btn.a__disabled,
+.a__view-panel > .a__top-box > .a__export-btn.a__disabled,
+.a__view-panel > .a__top-box > .a__import-btn.a__disabled
 {
     display: none;
 }
@@ -122,7 +126,9 @@
 .a__view-panel > .a__top-box > .a__saved-layers-btn > .fas,
 .a__view-panel > .a__top-box > .a__create-region-btn > .fas,
 .a__view-panel > .a__top-box > .a__log-out-btn > .fas,
-.a__view-panel > .a__top-box > .a__download-btn > .fas
+.a__view-panel > .a__top-box > .a__download-btn > .fas,
+.a__view-panel > .a__top-box > .a__export-btn > .fas,
+.a__view-panel > .a__top-box > .a__import-btn > .fas
 {
     position: absolute;
     width: 100%;
