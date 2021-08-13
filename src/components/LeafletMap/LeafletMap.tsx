@@ -1,4 +1,4 @@
-import React, {FC, useEffect} from 'react'
+import  {FC, useEffect} from 'react'
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useActions } from '../../hooks/useActions';
 import L from 'leaflet';
@@ -12,7 +12,7 @@ import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
 import './leafletMapStyle.css'
 
-//=================================================================
+//-----------------------
 
 let DefaultIcon = L.icon({
     iconUrl: icon,
@@ -21,7 +21,7 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-//=================================================================
+//-----------------------
 
 const LeafletMap: FC = () => { 
     
@@ -32,57 +32,24 @@ const LeafletMap: FC = () => {
     const {setMapPointerAction, 
            addLayerToRegionAction,
            updateRegionAfterCuttingAction,
-           removeRegionItemAction
-          } = useActions()
+           removeRegionItemAction,
+           CallChangeIndicatorFunctionAction } = useActions()
 
     const setMapPointer = (map: L.DrawMap) => {
         setMapPointerAction(map)
     }  
 
-    //----------------------------------------------------------------
-    
-     //MAP INIT BEGIN
-     useEffect(()=>{        
-
-        /* let osmUrl = 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
-        osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        osm = L.tileLayer(osmUrl, {
-          maxZoom: 18,
-          attribution: osmAttrib
-        });
-        let map = L.map('map').setView([19.04469, 72.9258], 12).addLayer(osm); */
-
-
-         /* let googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+    //-----------------    
+     
+     useEffect(()=>{  
+         let googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
           maxZoom: 20,
           subdomains:['mt0','mt1','mt2','mt3']
-        });        
-        let map = L.map('map').setView([19.04469, 72.9258], 12).addLayer(googleStreets); */
-        
+         });
 
-        //Hybrid map
-         let googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
-          maxZoom: 20,
-          subdomains:['mt0','mt1','mt2','mt3']
-        });       
-        let map = L.map('map').setView([19.04469, 72.9258], 12).addLayer(googleHybrid); 
+         let map = L.map('map').setView([19.04469, 72.9258], 12).addLayer(googleStreets); 
 
-        //satellite
-        /* let googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
-          maxZoom: 20,
-          subdomains:['mt0','mt1','mt2','mt3']
-        });
-        let map = L.map('map').setView([19.04469, 72.9258], 12).addLayer(googleSat); */
-
-        //Terrain
-        /* let googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
-          maxZoom: 20,
-          subdomains:['mt0','mt1','mt2','mt3']
-        });
-        let map = L.map('map').setView([19.04469, 72.9258], 12).addLayer(googleTerrain); */
-
-
-        var options: any = {
+         var options: any = {
             position: 'topleft',    
             drawPolygon: true,  
             drawPolyline: true,  
@@ -92,161 +59,93 @@ const LeafletMap: FC = () => {
             deleteLayer: true,    
             drawRectangle: true, 
             drawMarker: false    
-        };       
-        map.pm.addControls(options);               
+         };       
+         map.pm.addControls(options);     
 
-        //--------------------------
+         setMapPointer(map)        
+    }, [])   
 
-        setMapPointer(map)        
-    }, [])    
-    //MAP INIT END 
-
-    //--------------------------------------------------------------------
+    //------------------------
 
     useEffect(()=>{
-        mapPointer?.on('pm:create', function(event: any) {
-            console.log('pm:create-event',  event)           
-
-            //----------------------------------------------------------
+        mapPointer?.on('pm:create', function(event: any) {                       
 
             if(event.shape === "Polygon"){
                 let polygon: any = L.polygon(event.layer._latlngs, event.layer.options).addTo(mapPointer);
                 polygon.pm._shape = "Polygon";
-                event.layer.remove()
-
-                console.log('Polygon layer =', polygon)
-                //console.log('Polygon toGeoJSON() =', polygon.toGeoJSON())
+                event.layer.remove()    
 
                 polygon.on('pm:remove', (event: any) => {
                     console.log('pm:remove= ' ,event);                
   
                     removeRegionItemAction(polygon._leaflet_id)
-                }); 
-
-                polygon.on('pm:dragend', (event: any) => {
-                    console.log('pm:dragend polygon= ' ,event);  
-                    
-                });
-
-                polygon.on('pm:rotateend', (event: any) => {
-                    console.log('pm:rotateend polygon= ' ,event);  
-                    
-                });
+                });                
                 
+                CallChangeIndicatorFunctionAction()
                 addLayerToRegionAction(polygon)
 
             } else if(event.shape === "Rectangle") {
                 let rectangle: any = L.rectangle(event.layer._latlngs, event.layer.options).addTo(mapPointer);
                 rectangle.pm._shape = "Rectangle";
-                event.layer.remove()
-
-                console.log('Rectangle layer =', rectangle)
+                event.layer.remove()               
 
                 rectangle.on('pm:remove', (event: any) => {
-                    console.log('pm:remove= ' ,event);                
-  
                     removeRegionItemAction(rectangle._leaflet_id)
-                });
-                
-                rectangle.on('pm:dragend', (event: any) => {
-                    console.log('pm:dragend rectangle= ', event);  
-                    
-                });
+                });               
 
-                rectangle.on('pm:rotateend', (event: any) => {
-                    console.log('pm:rotateend rectangle= ' ,event);  
-                    
-                });
-                
+                CallChangeIndicatorFunctionAction()
                 addLayerToRegionAction(rectangle)
 
             } else if(event.shape === "Line") {
                 let polyline: any = L.polyline(event.layer._latlngs, event.layer.options).addTo(mapPointer);
                 polyline.pm._shape = "Line";
-                event.layer.remove()
-
-                console.log('Polyline layer =', polyline)
+                event.layer.remove()              
 
                 polyline.on('pm:remove', (event: any) => {
-                    console.log('pm:remove= ' ,event);                
-  
                     removeRegionItemAction(polyline._leaflet_id)
                 }); 
-
-                polyline.on('pm:dragend', (event: any) => {
-                    console.log('pm:dragend polyline= ', event);  
-                    
-                });
-
-                polyline.on('pm:rotateend', (event: any) => {
-                    console.log('pm:rotateend polyline= ', event);  
-                    
-                });
                 
+                CallChangeIndicatorFunctionAction()
                 addLayerToRegionAction(polyline) 
 
             } else if(event.shape === "Circle") {
                 let circle: any = L.circle(event.layer._latlng, event.layer.options).addTo(mapPointer);
                 circle.pm._shape = "Circle";
-                event.layer.remove()
+                event.layer.remove()          
 
-                console.log('Circle layer =', circle)
-
-                circle.on('pm:remove', (event: any) => {
-                    console.log('pm:remove= ' ,event);                
-  
+                circle.on('pm:remove', (event: any) => {  
                     removeRegionItemAction(circle._leaflet_id)
-                });
-                
-                circle.on('pm:dragend', (event: any) => {
-                    console.log('pm:dragend circle= ', event);  
-                    
                 });                
-                
+
+                CallChangeIndicatorFunctionAction()
                 addLayerToRegionAction(circle) 
-            } 
-            
+            }            
         });
 
         return ()=>{mapPointer?.off('pm:create')}
 
     }, [mapPointer])
 
-    //--------------------------------------------------------------------
+    //------------------
 
-    useEffect(()=>{
-        //Cut mode
+    useEffect(()=>{        
         mapPointer?.on('pm:cut', (event: any) => {
-            console.log('pm:cut event= ' ,event);
-
-            //------------------------------------------------
+            CallChangeIndicatorFunctionAction()           
                         
             let new_layer_arr = []           
 
             if(event.originalLayer.pm._shape === "Line") {                
-                let polyline:any;
+                let polyline: any;
 
-                for(let layer of Object.keys(event.layer._layers)){
-                    console.log('layer= ', event.layer._layers[layer])
+                for(let layer of Object.keys(event.layer._layers)) {
+                    //console.log('layer= ', event.layer._layers[layer])
 
                     polyline = L.polyline(event.layer._layers[layer]._latlngs, event.originalLayer.options).addTo(mapPointer);
                     polyline.pm._shape = "Line";
                     
-                    polyline.on('pm:remove', (event: any) => {
-                        console.log('pm:remove= ' ,event);                     
-                        
+                    polyline.on('pm:remove', (event: any) => {                          
                         removeRegionItemAction(event.layer._leaflet_id)
-                    }); 
-
-                    polyline.on('pm:dragend', (event: any) => {
-                        console.log('pm:dragend polyline= ' ,event);  
-                        
-                    });
-
-                    polyline.on('pm:rotateend', (event: any) => {
-                        console.log('pm:rotateend polyline= ', event);  
-                        
-                    });
+                    });                    
 
                     new_layer_arr.push(polyline)
                 } 
@@ -256,58 +155,32 @@ const LeafletMap: FC = () => {
                 updateRegionAfterCuttingAction([new_layer_arr, prev_leaflet_id])                 
             }            
             
-            //-------------------------------------------------------------------
+            //------------------------
 
             if(event.originalLayer.pm._shape === "Polygon" || event.originalLayer.pm._shape === "Rectangle") {                
                 let polygon:any;
 
-                if(event.layer.feature.geometry.type === "Polygon"){                     
-                    
+                if(event.layer.feature.geometry.type === "Polygon") {                     
                     polygon = L.polygon(event.layer._latlngs, event.originalLayer.options).addTo(mapPointer);
                     polygon.pm._shape = "Polygon";
 
-                    polygon.on('pm:remove', (event: any) => {
-                        console.log('pm:remove= ' ,event);                       
-
+                    polygon.on('pm:remove', (event: any) => {                  
                         removeRegionItemAction(event.layer._leaflet_id)
-                    });
-                    
-                    polygon.on('pm:dragend', (event: any) => {
-                        console.log('pm:dragend polygon= ' ,event);  
-                        
-                    });
-
-                    polygon.on('pm:rotateend', (event: any) => {
-                        console.log('pm:rotateend polygon= ', event);  
-                        
-                    });
+                    });                   
 
                     new_layer_arr.push(polygon)                         
                 }
 
-                //----------------------------------------------------------
+                //-------------------------
 
-                if(event.layer.feature.geometry.type === "MultiPolygon"){
-                    for(let i=0; i < (event.layer._latlngs).length; i++){ 
-                    
+                if(event.layer.feature.geometry.type === "MultiPolygon") {
+                    for(let i=0; i < (event.layer._latlngs).length; i++) {                    
                         polygon = L.polygon(event.layer._latlngs[i], event.originalLayer.options).addTo(mapPointer);
                         polygon.pm._shape = "Polygon";
 
-                        polygon.on('pm:remove', (event: any) => {
-                            console.log('pm:remove= ' ,event);                       
-    
+                        polygon.on('pm:remove', (event: any) => {   
                             removeRegionItemAction(event.layer._leaflet_id)
-                        });
-                        
-                        polygon.on('pm:dragend', (event: any) => {
-                            console.log('pm:dragend polygon= ' ,event);  
-                            
-                        });
-
-                        polygon.on('pm:rotateend', (event: any) => {
-                            console.log('pm:rotateend polygon= ', event);  
-                            
-                        });
+                        });                     
     
                         new_layer_arr.push(polygon)
                     }     
@@ -325,7 +198,7 @@ const LeafletMap: FC = () => {
 
     }, [mapPointer])
 
-    //------------------------------------------
+    //-----------------------
 
     useEffect(()=>{
         if(currentRegionId === -1 && mapPointer?.pm.controlsVisible()) 
@@ -336,7 +209,7 @@ const LeafletMap: FC = () => {
 
         }, [currentRegionId, mapPointer])
 
-    //----------------------------------------------
+    //-----------------------
 
     useEffect(()=>{
         onMapRegions.forEach((obj)=>{
@@ -349,7 +222,7 @@ const LeafletMap: FC = () => {
 
     }, [currentRegionId, onMapRegions, mapPointer])
 
-    //--------------------------------------------------------------------
+    //----------------------
 
     return (        
         <div id="map"  className="a__leaflet-map" >                   
@@ -361,3 +234,37 @@ const LeafletMap: FC = () => {
 export default LeafletMap
 
 
+
+
+
+
+//----------------------------------
+
+/* let osmUrl = 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
+        osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        osm = L.tileLayer(osmUrl, {
+          maxZoom: 18,
+          attribution: osmAttrib
+        });
+        let map = L.map('map').setView([19.04469, 72.9258], 12).addLayer(osm); */
+
+        //Hybrid map
+         /* let googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+          maxZoom: 20,
+          subdomains:['mt0','mt1','mt2','mt3']
+        });       
+        let map = L.map('map').setView([19.04469, 72.9258], 12).addLayer(googleHybrid);  */
+
+        //satellite
+        /* let googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+          maxZoom: 20,
+          subdomains:['mt0','mt1','mt2','mt3']
+        });
+        let map = L.map('map').setView([19.04469, 72.9258], 12).addLayer(googleSat); */
+
+        //Terrain
+        /* let googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+          maxZoom: 20,
+          subdomains:['mt0','mt1','mt2','mt3']
+        });
+        let map = L.map('map').setView([19.04469, 72.9258], 12).addLayer(googleTerrain); */

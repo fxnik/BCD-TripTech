@@ -17,11 +17,9 @@
 {
     position: relative;
     width: 100%;
-    height: 15px;
-    /* background: rgb(129, 128, 128); */
+    height: 15px;    
     background: rgb(14, 140, 172);
-    color: #fff;
-    /* padding-left: 2px; */
+    color: #fff;    
     border-radius: 4px 4px 0 0;
 }
 
@@ -35,14 +33,13 @@
     background: rgb(231, 230, 230);
     color: rgb(121, 119, 119);
     padding: 2px;
-    font-size: 8px;
-    /* line-height: 15px; */
+    font-size: 8px;    
     border-bottom: 1px solid rgb(194, 193, 193);    
 }
 
 .a__region > .a__region-header > .a__idicators > .fas
-{
-    color: rgb(253, 131, 101);
+{    
+    color: rgb(184, 180, 180);
     font-size: 10px;
     margin: 0 3px 0 3px;
     transition: 0.3s;
@@ -50,7 +47,7 @@
 
 .a__region > .a__region-header > .a__idicators > .fas.a__active
 {
-    color: rgb(74, 231, 113); 
+    color: rgb(244, 247, 241); 
 }
 
 .a__region > .a__tool-panel > .a__btn
@@ -59,12 +56,10 @@
    width: 16px;
    height: 16px;
    border: 0px solid rgb(134, 133, 133);
-   border-radius: 2px;
-   /* background: #fff; */
+   border-radius: 2px;   
    background: transparent;
    margin: 0 2px 0 1px;
 }
-
 
 .a__region > .a__tool-panel > .a__btn > .fas
 {

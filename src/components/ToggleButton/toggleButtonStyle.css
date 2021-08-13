@@ -33,26 +33,17 @@
 }
 
 .a__toggle-button.a__is-active
-{
-    /* right: 210px; */
+{    
     top: 2px;
     right: 2px;
     width: 20px;
-    height: 20px;  
-    
-    border: 1px solid rgba(148, 142, 142, 0.5); 
-    /* background: rgb(228, 149, 47);  */
+    height: 20px;     
+    border: 1px solid rgba(148, 142, 142, 0.5);   
 }
-
-/* .a__toggle-button.a__is-active:hover
-{
-    background: rgb(228, 149, 47);    
-} */
 
 .a__toggle-button.a__is-active > .fas
 {
     line-height: 20px;
-    font-size: 11px; 
-    /* color: #fff;  */ 
+    font-size: 11px;     
 }
 

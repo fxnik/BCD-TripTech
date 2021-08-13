@@ -6,21 +6,21 @@ import L from 'leaflet'
 
 import './regionItemStyle.css'
 
-//----------------------------------------------------
+//----------------------
 
 const RegionItem: FC<IRegionItem> = ({layer, info , region_id , signaler}) => {
     const { removeRegionItemAction,
-            updateRegionItemInfoAction } = useActions()
+            updateRegionItemInfoAction,
+            CallChangeIndicatorFunctionAction } = useActions()
 
     const { mapPointer: map,
             currentRegionId } = useTypedSelector(state => state.app)
 
     const [isOpend, setIsOpend] = useState(false)
-    const [regionItemName, setRegionItemName] = useState('Новый елемент')
+    const [regionItemName, setRegionItemName] = useState('New element')
     const [isEditable, setIsEditable] = useState(false)
 
-
-    //----------------------------------------------
+    //----------------------
 
     useEffect(()=>{
         if(info){
@@ -28,7 +28,7 @@ const RegionItem: FC<IRegionItem> = ({layer, info , region_id , signaler}) => {
         }
     }, [])
 
-    //----------------------------------------------
+    //---------------------
 
     useEffect(()=>{
         if(region_id === currentRegionId){
@@ -40,12 +40,13 @@ const RegionItem: FC<IRegionItem> = ({layer, info , region_id , signaler}) => {
         }
     }, [currentRegionId])
 
-    //----------------------------------------------
+    //---------------------
 
     const removeRegionItemHandler = (layer:any)=>{ 
-        let answer:boolean = window.confirm("Вы действительно хотите удалить этот елемент? ");
+        let answer:boolean = window.confirm("Are you sure you want to delete this item? ");
         if(!answer) return 
 
+        CallChangeIndicatorFunctionAction()
         removeRegionItemAction(layer._leaflet_id)
     }
 
@@ -74,14 +75,14 @@ const RegionItem: FC<IRegionItem> = ({layer, info , region_id , signaler}) => {
         });        
     }
 
-    //------------------------------------------------
+    //---------------------
 
-     let itemType = layer instanceof L.Rectangle ? 'Rectangle': 
+     /* let itemType = layer instanceof L.Rectangle ? 'Rectangle': 
                    layer instanceof L.Polygon ? 'Polygon': 
                    layer instanceof L.Polyline ? 'Polyline':
-                   layer instanceof L.Circle ? 'Circle': ''; 
+                   layer instanceof L.Circle ? 'Circle': ''; */ 
 
-    //------------------------------------------------    
+    //---------------------    
 
     const setRegionItemNameHandler = (event: React.ChangeEvent<HTMLTextAreaElement>)=> {
         signaler()
@@ -89,7 +90,7 @@ const RegionItem: FC<IRegionItem> = ({layer, info , region_id , signaler}) => {
         setRegionItemName(state => event.target.value)
     } 
 
-    //------------------------------------------------
+    //---------------------
 
     return (
         <div className="a__region-item"
@@ -102,22 +103,22 @@ const RegionItem: FC<IRegionItem> = ({layer, info , region_id , signaler}) => {
 
             <div className="a__tool-panel">
                 <div className="a__btn a__remove-btn" 
-                     title="Удалить елемент"
-                     onClick={isEditable ? ()=>removeRegionItemHandler(layer) : ()=>alert('Начните редактирование этого региона')}
+                     title="to remove element"
+                     onClick={isEditable ? ()=>removeRegionItemHandler(layer) : ()=>alert('Start editing this region')}
                 >
                    <i className="fas fa-trash-alt"></i>
                 </div>
 
                 <div className="a__btn a__find-element-btn" 
-                     title="Найти элемент на карте"
-                     onClick={isEditable ? ()=>findRegionItemHandler(layer) : ()=>alert('Начните редактирование этого региона')}
+                     title="to find an item on the map"
+                     onClick={isEditable ? ()=>findRegionItemHandler(layer) : ()=>alert('Start editing this region')}
                 >
                    <i className="fas fa-search-location"></i>
                 </div>
 
                 <div className="a__btn a__pencil-btn" 
-                     title="Добавить информацию об елементе"
-                     onClick={isEditable ? ()=>setIsOpend(state => !state) : ()=>alert('Начните редактирование этого региона')}
+                     title="Add item information"
+                     onClick={isEditable ? ()=>setIsOpend(state => !state) : ()=>alert('Start editing this region')}
                 >
                    <i className="fas fa-pencil-alt"></i>
                 </div>
@@ -130,9 +131,7 @@ const RegionItem: FC<IRegionItem> = ({layer, info , region_id , signaler}) => {
                             onChange={setRegionItemNameHandler} 
                             rows={3}                              
                 />                                     
-            </div>
-
-                                
+            </div>                              
             
         </div>
     )

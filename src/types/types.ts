@@ -3,7 +3,7 @@ import {IMapRegion} from '../store/reducers/mapReducer'
 export interface IRegionFromDb {
     info: string;
     uuid: string;
-    reloader: ()=> void;
+    reloader: ()=>void;
  }
 
 export interface IDataBaseRegionModel {

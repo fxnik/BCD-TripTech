@@ -1,5 +1,7 @@
-import React, {useCallback}  from 'react'
+import {useCallback}  from 'react'
 import axios from 'axios'
+
+//---------------------------
 
 export const useHttp = () => {
 
@@ -17,14 +19,8 @@ export const useHttp = () => {
              url: url,
              headers: headers,
              data: body,
-             //timeout: 5000
-          })
-          /* .catch(function (error) {
-            if (error.response) {
-              console.log(error.response.data);
-              console.log(error.response.status);
-              console.log(error.response.headers);
-            }}) */
+             //timeout: 20000
+          })          
 
           console.log("response= ", response);                                      
 
@@ -34,12 +30,12 @@ export const useHttp = () => {
           }     
 
           return response.data
+
        } catch(e) {         
            console.log('error', e.message)
            throw e
        }
-   }, []) 
-
+    }, [])
 
    return{ request }
 }

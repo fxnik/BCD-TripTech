@@ -1,54 +1,70 @@
-import React, {FC, useState, useCallback} from 'react'
-import { useTypedSelector } from '../../hooks/useTypedSelector';
+import React, {FC, useState} from 'react'
 import { useActions } from '../../hooks/useActions';
 import { useHttp } from '../../hooks/useHttp'
-//import config from 'config'
-//import axios from "axios";
 import { useHistory } from "react-router-dom";
 
 import './authFormStyle.css'
 
-//--------------------------------
+//---------------------------
+
+import dotenv from 'dotenv'
+dotenv.config()
+
+let APP_API_URL: string | undefined;
+
+if (process.env.NODE_ENV === 'production') {
+    console.log('production')  
+    APP_API_URL = process.env.REACT_APP_PROD_APP_API_URL          
+    console.log('APP_API_URL=', APP_API_URL)
+} 
+
+if (process.env.NODE_ENV === 'development') {
+    console.log('development')
+    APP_API_URL = process.env.REACT_APP_DEV_APP_API_URL            
+    console.log('APP_API_URL=', APP_API_URL)
+}
+
+//--------------------------
 
 const AuthForm: FC = () => {
     const { setUserIsAuthorizedAction, } = useActions()
 
-    //------------------------------------------------
+    //-------------------
 
     let history = useHistory();
     const {request} = useHttp()
     const [isSignIn, setSignIn] = useState(true)
-    const [inProgress, setInProgress] = useState(false)
-    //const [error, setError] = useState(null)
+    const [inProgress, setInProgress] = useState(false)    
     const [form, setForm] = useState({email:'', password:'' })
     const [emailIsValid, setEmailValidation] = useState(true)
     const [passwordIsValid, setPasswordValidation] = useState(true)
 
-    //--------------------------------------------------
+    //-------------------
 
     const toggleSignInHandler = ()=>{
         setSignIn(state => !state)
     }   
 
-    //--------------------------------------------------    
+    //-------------------    
 
-    const registerHandler = async ()=>{
-        if(!form.email){
-            alert('Поле Email пустое. Введите свой email')
+    const registerHandler = async () => {         
+
+        if(!form.email) {
+            alert('Email field is empty. Type your email.')
             return
         } else if(!form.password) {
-            alert('Поле Password пустое. Введите свой пароль')
+            alert('Password field is empty. Type your password')
             return
         } else if(!emailIsValid || !passwordIsValid ){
-            alert('Неправильный формат введенных данных')
+            alert('Format of your credentials are not valid')
             return
         }
 
         try {
            setInProgress(state => true)
 
-           const data = await request('http://127.0.0.1:8000/api/register', 'post', {...form})  
-           //const data = await request('http://45.84.226.158:5050/api/register', 'post', {...form})         
+           const data = await request(APP_API_URL + '/register', 'post', {...form})
+                    
            console.log('data= ', data)
 
            if(data.isError){
@@ -56,10 +72,10 @@ const AuthForm: FC = () => {
                alert('Error: ' + data.message)
            } else if(data.message === 'user_created') {
                setInProgress(state => false)
-               alert('Пользователь создан. Вы можете войти')
+               alert('User has been created. You may sign in')
            } else if(data.message === 'user_exists'){
                setInProgress(state => false)
-               alert('Введите другой email')
+               alert('Type other email')
            }
         } catch(e) {
             setInProgress(state => false)
@@ -68,25 +84,25 @@ const AuthForm: FC = () => {
         }      
     }
 
-    //--------------------------------------------
+    //----------------------
 
     const loginHandler = async () => {
         if(!form.email){
-            alert('Поле Email пустое. Введите свой email')
+            alert('Email field is empty. Type your email.')
             return
         } else if(!form.password) {
-            alert('Поле Password пустое. Введите свой пароль')
+            alert('Password field is empty. Type your password')
             return
         } else if(!emailIsValid || !passwordIsValid ){
-            alert('Неправильный формат введенных данных')
+            alert('Format of your credentials are not valid')
             return
         }
 
         try {
             setInProgress(state => true)
 
-            const data = await request('http://127.0.0.1:8000/api/login', 'post', {...form})
-            //const data = await request('http://45.84.226.158:5050/api/login', 'post', {...form})
+            const data = await request(APP_API_URL + '/login', 'post', {...form})
+            
             console.log('data', data)
 
             if(data.isError){
@@ -97,10 +113,10 @@ const AuthForm: FC = () => {
                 localStorage.setItem('userData', JSON.stringify({userId: data.userId, token: data.token }))  
             
                 setUserIsAuthorizedAction(true)
-                //history.push("/map");                
+                                
             } else if (data.message === 'unauthorized') {
                 setInProgress(state => false)
-                alert('Вы не прошли авторизацию')
+                alert('You are not authorized')
             }        
             
           } catch (e) {
@@ -110,9 +126,9 @@ const AuthForm: FC = () => {
           }
     }
 
-    //-----------------------------------------------------------------
+    //-----------------------
 
-    const changeHandler = ( event: React.ChangeEvent<HTMLInputElement>) =>
+    const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) =>
     {
         setForm({...form, [event.target.name]: event.target.value})
 
@@ -129,7 +145,7 @@ const AuthForm: FC = () => {
             else setEmailValidation(state => true)  
         }       
 
-        //----------------------------------------
+        //------------------------
         
         if(event.target.name === "password") {
             if(event.target.value.length > 0 && (event.target.value.length < 8 || event.target.value.length > 30)) {
@@ -138,7 +154,7 @@ const AuthForm: FC = () => {
         }         
     }
 
-    //--------------------------------------------
+    //----------------------------
 
     return (
         <div className="a__auth-form-container">
@@ -152,7 +168,7 @@ const AuthForm: FC = () => {
                 <div className="a__email">
                     <span>Email</span>
                     <input type="text" 
-                           placeholder="введите email" 
+                           placeholder="type your email" 
                            name="email"
                            value={form.email}
                            onChange={changeHandler}                           
@@ -163,7 +179,7 @@ const AuthForm: FC = () => {
                 <div className="a__password">
                     <span>Password</span>
                     <input type="password" 
-                           placeholder="введите пароль в виде 8-30 символов" 
+                           placeholder="type your password as 8-30 symbols" 
                            name="password"
                            value={form.password}
                            onChange={changeHandler}                           
@@ -194,7 +210,7 @@ const AuthForm: FC = () => {
                 </div>
 
                 <div className={inProgress ? "a__spinner": "a__spinner a__disabled"}> 
-                   <div>Ждите</div>               
+                   <div>Wait</div>               
                    <div className="a__lds-dual-ring-auth"></div> 
                 </div>
                 

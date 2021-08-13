@@ -1,30 +1,43 @@
-import React, {FC, useState} from 'react'
+import {FC, useState} from 'react'
 import { IRegionFromDb, IDataBaseRegionModel } from '../../types/types'
 import { useHttp } from '../../hooks/useHttp'
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useActions } from '../../hooks/useActions';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css'
-/*import '@geoman-io/leaflet-geoman-free';  
-import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'; 
- */
+
 import './regionFromDbStyle.css';
 
-//-------------------------------
+//--------------------------
 
+import dotenv from 'dotenv'
+dotenv.config()
+
+let APP_API_URL: string | undefined;
+
+if (process.env.NODE_ENV === 'production') {     
+    APP_API_URL = process.env.REACT_APP_PROD_APP_API_URL   
+} 
+
+if (process.env.NODE_ENV === 'development') {    
+    APP_API_URL = process.env.REACT_APP_DEV_APP_API_URL   
+}
+
+//--------------------------
 
 const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
     const { mapPointer: map } = useTypedSelector(state => state.app)
     const { addNewRegionAction,
-            removeRegionItemAction } = useActions()
+            removeRegionItemAction,
+            CallChangeIndicatorFunctionAction } = useActions()
 
     const { request } = useHttp()
     const [isLoading, setLoading] = useState(false)
 
-    //---------------------------------------------------
+    //--------------------
 
     const deleteRegionFromDbHandler =  async () => {
-        let answer:boolean = window.confirm("Вы действительно хотите удалить регион из базы данных?");
+        let answer:boolean = window.confirm("Are you sure you want to remove the region from the database ?");
         if(!answer) return        
         
         let userData: string | null = localStorage.getItem('userData')
@@ -32,30 +45,26 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
 
         if(userData) token = JSON.parse(userData).token
         else {
-            alert('Токен доступа отсутствует. Пройдите авторизацию')
+            alert('Access token has been missed. Log in')
             return
         }         
 
         try {
             let body: object = {
                 uuid: uuid                
-            }
+            }            
 
-            const data = await request('http://127.0.0.1:8000/api/delete_region', 
+            const data = await request(APP_API_URL + '/delete_region', 
                                       'post',
                                        body, 
-                                       {'Authorization': `Bearer ${token}`})  
+                                       {'Authorization': `Bearer ${token}`})             
 
-            /* const data = await request('http://45.84.226.158:5050/api/delete_region', 
-                                       'post',
-                                        body, 
-                                        {'Authorization': `Bearer ${token}`}) */         
             console.log('data= ', data)
             
            if(data.isError) {
                alert('Error: ' + data.message)
            } else if(data.message === 'done') {                
-              alert('Регион удален из бд')
+              alert('Region has been removed from database.')
               reloader()        
            } 
          } catch(e) {
@@ -64,10 +73,10 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
          }                  
     }
 
-    //---------------------------------------------------
+    //------------------------
 
     const editRegionFromDbHandler = async () => {
-        let answer:boolean = window.confirm("Вы действительно хотите редактировать регион?");
+        let answer:boolean = window.confirm("Are you sure you want to edit the region ?");
         if(!answer) return
 
         let userData: string | null = localStorage.getItem('userData')
@@ -75,7 +84,7 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
 
         if(userData) token = JSON.parse(userData).token
         else {
-            alert('Токен доступа отсутствует. Пройдите авторизацию')
+            alert('Access token has been missed. Log in')
             return
         } 
 
@@ -86,22 +95,17 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
                 uuid: uuid                
             }
 
-            var data = await request('http://127.0.0.1:8000/api/get_one_region', 
+            var data = await request(APP_API_URL + '/get_one_region', 
                                       'post',
                                        body, 
-                                       {'Authorization': `Bearer ${token}`}) 
-
-            /* const data = await request('http://45.84.226.158:5050/api/get_one_region', 
-                                       'post',
-                                        body, 
-                                        {'Authorization': `Bearer ${token}`}) */  
+                                       {'Authorization': `Bearer ${token}`})            
 
             console.log('data= ', data)
 
             setLoading(state => false) 
             
            if(data.isError) {
-               alert('Error: ' + data.message)
+              alert('Error: ' + data.message)
            } else if(data.message === 'done') {                
               console.log('done')
               regionBuilder(data.payload) 
@@ -114,7 +118,7 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
          } 
     }
    
-    //---------------------------------------------------    
+    //----------------------    
 
     const regionBuilder = (payload: IDataBaseRegionModel) => {
         let original_json = JSON.parse(payload.geo_json)
@@ -126,7 +130,7 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
 
         let regionItemInfo:any = []
 
-        //--------------------------------------------
+        //-----------------------
 
          var newLayer = L.geoJSON(original_geo_json, {
             pointToLayer: function (feature, latlng) {
@@ -145,7 +149,7 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
 
         console.log('geoJsonLayersArr=', geoJsonLayersArr) 
 
-        //--------------------------------------------
+        //---------------------
 
         let layerGroup: any = L.layerGroup([])
         layerGroup.addTo(map!)
@@ -160,22 +164,21 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
                 
                 regionItemInfo.push([polygon._leaflet_id, geoJsonLayersArr[i].feature.properties.information])
 
-                console.log('Polygon layer =', polygon)                
-
-                polygon.on('pm:remove', (event: any) => {
-                    console.log('pm:remove= ' ,event);                
-  
+                polygon.on('pm:remove', (event: any) => {                   
+                    CallChangeIndicatorFunctionAction()  
                     removeRegionItemAction(polygon._leaflet_id)
                 });
                 
-                polygon.on('pm:dragend', (event: any) => {
-                    console.log('pm:dragend polygon= ' ,event);  
-                    
+                polygon.on('pm:dragend', (event: any) => {                    
+                    CallChangeIndicatorFunctionAction()                    
                 });
 
-                polygon.on('pm:rotateend', (event: any) => {
-                    console.log('pm:rotateend polygon= ' ,event);  
-                    
+                polygon.on('pm:rotateend', (event: any) => {                    
+                    CallChangeIndicatorFunctionAction()                    
+                });
+
+                polygon.on('pm:edit', (event: any) => {                   
+                    CallChangeIndicatorFunctionAction()                    
                 });
                 
                 layerGroup.addLayer(polygon)
@@ -186,22 +189,25 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
 
                 regionItemInfo.push([polyline._leaflet_id, geoJsonLayersArr[i].feature.properties.information])                
 
-                console.log('Polyline layer =', polyline)
-
-                polyline.on('pm:remove', (event: any) => {
-                    console.log('pm:remove= ' ,event);                
-  
+                polyline.on('pm:remove', (event: any) => {                    
+                    
+                    CallChangeIndicatorFunctionAction()  
                     removeRegionItemAction(polyline._leaflet_id)
                 });
                 
-                polyline.on('pm:dragend', (event: any) => {
-                    console.log('pm:dragend polyline= ', event);  
+                polyline.on('pm:dragend', (event: any) => {              
                     
+                    CallChangeIndicatorFunctionAction()                    
                 });
 
-                polyline.on('pm:rotateend', (event: any) => {
-                    console.log('pm:rotateend polyline= ', event);  
+                polyline.on('pm:rotateend', (event: any) => {                   
                     
+                    CallChangeIndicatorFunctionAction()                    
+                });
+
+                polyline.on('pm:edit', (event: any) => {                   
+                    
+                    CallChangeIndicatorFunctionAction()                    
                 });
 
                 layerGroup.addLayer(polyline)
@@ -212,31 +218,31 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
                 
                 regionItemInfo.push([circle._leaflet_id, geoJsonLayersArr[i].feature.properties.information])
 
-                console.log('Circle layer =', circle)
-
-                circle.on('pm:remove', (event: any) => {
-                    console.log('pm:remove= ' ,event);                
-  
+                circle.on('pm:remove', (event: any) => {                    
+                    
+                    CallChangeIndicatorFunctionAction()  
                     removeRegionItemAction(circle._leaflet_id)
                 });
                 
-                circle.on('pm:dragend', (event: any) => {
-                    console.log('pm:dragend circle= ', event);  
-                    
+                circle.on('pm:dragend', (event: any) => {                    
+                    CallChangeIndicatorFunctionAction()                    
                 }); 
+
+                circle.on('pm:edit', (event: any) => {                   
+                    CallChangeIndicatorFunctionAction()                    
+                });
                 
                 layerGroup.addLayer(circle) 
             } 
         }         
-        
-        //console.log('regionItemInfo= ', regionItemInfo)
 
         addNewRegionAction([ {
                                 leaflet_id: layerGroup._leaflet_id,
                                 regionLayer: layerGroup,                                 
                                 regionItemInfo: [...regionItemInfo],
                                 uuid: payload.uuid,
-                                info: original_json[0] 
+                                info: original_json[0],
+                                changeInd: ()=>{return}, 
                              },
                              layerGroup._leaflet_id
         ])
@@ -244,15 +250,14 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
         geoJsonLayersArr.forEach((layer: any)=>{
             layer.remove()
         }) 
-
     }
 
-    //---------------------------------------------------
+    //--------------------
 
     return (
         <div className="a__region-from-db" > 
             <div className={isLoading ? "a__spinner": "a__spinner a__disabled"}>
-                <div>Загрузка ...</div>
+                <div>Loading ...</div>
                 <div className="a__lds-dual-ring"></div> 
             </div>        
                             
@@ -260,20 +265,19 @@ const RegionFromDb: FC<IRegionFromDb> = ({info, uuid, reloader}) => {
 
             <div className="a__tool-panel">                
                 <div className="a__btn a__remove-btn" 
-                        title="Удалить регион из бд"
+                        title="to remove region from database"
                         onClick={deleteRegionFromDbHandler}
                 >
                     <i className="fas fa-trash-alt"></i>
                 </div> 
 
                 <div className="a__btn a__edit-btn" 
-                        title="Редактировать регион"
+                        title="to edit region"
                         onClick={editRegionFromDbHandler}
                 >
                     <i className="fas fa-wrench"></i>
                 </div> 
-            </div>                               
-            
+            </div>             
         </div>
     )
 }

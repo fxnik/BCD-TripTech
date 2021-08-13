@@ -20,9 +20,6 @@
     right: 0;
 }
 
-
-/* ================================ */
-
 .a__view-panel > .a__top-box
 {
     position: relative;
@@ -40,7 +37,8 @@
 .a__view-panel > .a__top-box > .a__log-out-btn,
 .a__view-panel > .a__top-box > .a__download-btn,
 .a__view-panel > .a__top-box > .a__export-btn,
-.a__view-panel > .a__top-box > .a__import-btn
+.a__view-panel > .a__top-box > .a__import-btn,
+.a__view-panel > .a__top-box > .a__group-btn
 {   
    position: relative;
    width: 20px;
@@ -55,38 +53,6 @@
    margin: 2px 0px 2px 2px; 
 }
 
-/* .a__view-panel > .a__top-box > .a__saved-layers-btn
-{
-    
-    position: relative;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    font-size: 11px;  
-    border: 1px solid rgba(148, 142, 142, 0.8); 
-    background: #fff;
-    border-radius: 4px;     
-    transition: 0.5s;  
-    cursor: pointer;  
-    margin: 2px 0px 2px 2px; 
-}
-
-.a__view-panel > .a__top-box > .a__create-region-btn
-{
-    position: relative;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    font-size: 11px;  
-    border: 1px solid rgba(148, 142, 142, 0.8); 
-    background: #fff;
-    border-radius: 4px;     
-    transition: 0.5s;  
-    cursor: pointer;  
-    margin: 2px 2px 2px 2px; 
-} */
-
-
 .a__view-panel > .a__top-box > .a__unsaved-layers-btn.a__active
 {
     border-radius: 0;
@@ -94,8 +60,7 @@
     border-bottom: 0;
     border-left: 0;
     margin: 0 0px 0 0px;
-    width: 70px;
-    /* background: #fcfbfb; */
+    width: 70px;    
     background: linear-gradient(to bottom,#fcfbfb, #fccc74);
 }
 
@@ -112,7 +77,8 @@
 .a__view-panel > .a__top-box > .a__create-region-btn.a__disabled,
 .a__view-panel > .a__top-box > .a__download-btn.a__disabled,
 .a__view-panel > .a__top-box > .a__export-btn.a__disabled,
-.a__view-panel > .a__top-box > .a__import-btn.a__disabled
+.a__view-panel > .a__top-box > .a__import-btn.a__disabled,
+.a__view-panel > .a__top-box > .a__group-btn.a__disabled
 {
     display: none;
 }
@@ -128,7 +94,8 @@
 .a__view-panel > .a__top-box > .a__log-out-btn > .fas,
 .a__view-panel > .a__top-box > .a__download-btn > .fas,
 .a__view-panel > .a__top-box > .a__export-btn > .fas,
-.a__view-panel > .a__top-box > .a__import-btn > .fas
+.a__view-panel > .a__top-box > .a__import-btn > .fas,
+.a__view-panel > .a__top-box > .a__group-btn > .fas
 {
     position: absolute;
     width: 100%;
@@ -140,20 +107,16 @@
     transition: 0.5s;
 }
 
-/* ===================== LayersContainer ======================= */
-
 .a__view-panel > .a__unsaved-layers-container
 {
     position: absolute;    
     width: 100%;
     height: calc(100% - 24px);
-    top: 24px;
-    /* background: #f1f0f0; */
+    top: 24px;    
     background: #fccc74;
     z-index: 10; 
     overflow-y: auto;
     transition: 0.5s;
-
 }
 
 .a__view-panel > .a__saved-layers-container
@@ -219,8 +182,7 @@
     width: 100%;
     height: 150px;
     text-align: center;
-    margin-top: 30px;
-    /* border: 1px solid #111; */ 
+    margin-top: 30px;     
 }
 
 .a__saved-layers-container > .a__spinner.a__disabled

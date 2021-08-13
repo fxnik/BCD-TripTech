@@ -9,35 +9,53 @@ import RegionItem from '../RegionItem/RegionItem'
 
 import './regionStyle.css'
 
-//--------------------------------------
+//---------------------------
+
+import dotenv from 'dotenv'
+dotenv.config()
+
+let APP_API_URL: string | undefined;
+
+if (process.env.NODE_ENV === 'production') {     
+    APP_API_URL = process.env.REACT_APP_PROD_APP_API_URL   
+} 
+
+if (process.env.NODE_ENV === 'development') {    
+    APP_API_URL = process.env.REACT_APP_DEV_APP_API_URL   
+}
+
+//--------------------------
 
 const Region: FC<IRegion> = ({obj}) => {
     const { mapPointer: map, 
             currentRegionId } = useTypedSelector(state => state.app)
 
     const { removeRegionAction, 
-            setCurrentRegionIdAction } = useActions()
+            setCurrentRegionIdAction,
+            setChangeIndicatorFunctionAction } = useActions()
 
     const {request} = useHttp()
     const [isOpend, setIsOpend] = useState(false)
-    const [regionInfo, setRegionInfo] = useState('Новый регион')
+    const [regionInfo, setRegionInfo] = useState('New region')
     const [isNarrowed, setIsNarrowed] = useState(false)    
     const [isFromDb, setIsFromBd] = useState(false) 
     const [isChanged, setIsChanged] = useState(false)    
 
-    //--------------------------------------------------------------
+    //----------------------------
 
     /**
-     * if region comes from database
+     * it runs if region comes from database
      */
     useEffect(()=>{
         if(obj.info){
             setRegionInfo(obj.info)
             setIsFromBd(true)            
-        }        
+        } 
+
+        setChangeIndicatorFunctionAction([()=> setIsChanged(state => true), obj.leaflet_id])
     }, [])    
 
-    //--------------------------------------------------------------
+    //--------------------------
 
     /**
      * it runs for forbidding editing information 
@@ -49,11 +67,18 @@ const Region: FC<IRegion> = ({obj}) => {
         }
     }, [currentRegionId])
 
-    //--------------------------------------------------------------
+    //-------------------------
 
     const removeRegionHandler = (obj: any) => {
-        let answer:boolean = window.confirm("Вы действительно хотите удалить с карты этот регион? ");
+        let answer:boolean = window.confirm("Do you really want to remove this region from the map ?");
         if(!answer) return 
+
+        map!.pm.disableDraw();
+        map!.pm.disableGlobalEditMode()
+        map!.pm.disableGlobalDragMode()
+        map!.pm.disableGlobalRemovalMode()
+        map!.pm.disableGlobalCutMode()
+        map!.pm.disableGlobalRotateMode()        
 
         obj.regionLayer.remove()
         removeRegionAction(obj.leaflet_id)        
@@ -65,32 +90,34 @@ const Region: FC<IRegion> = ({obj}) => {
         setIsChanged(state => true)
         setRegionInfo(event.target.value) 
     }
+
     //------------------------------
 
     const stopRegionEditing = ()=>{
-        let answer:boolean = window.confirm("Вы действительно хотите остановить редактирование?");
-        if(!answer) return         
-
-        console.log('остановить редактирование')
+        let answer:boolean = window.confirm("Do you really want to stop editing?");
+        if(!answer) return 
+        
         setCurrentRegionIdAction(-1)
     }
 
     //------------------------------
 
     const startRegionEditing = (obj: any)=>{
-        let answer:boolean = window.confirm("Вы действительно хотите начать редактирование?");
-        if(!answer) return         
+        let answer:boolean = window.confirm("Do you really want to start editing?");
+        if(!answer) return 
 
-        console.log('начать редактирование', obj.leaflet_id)
         setCurrentRegionIdAction(obj.leaflet_id)
     }
 
     //------------------------------
 
     const saveRegionToDataBaseHandler = async (obj: any) => {
-        console.log('сохранить в бд')
+        if(!isChanged) {
+            alert('Region has no changes')
+            return
+        }
 
-        let answer:boolean = window.confirm("Вы действительно хотите сохранить регион ?");
+        let answer:boolean = window.confirm("Do you really want to save editing ?");
         if(!answer) return  
 
         let userData: string | null = localStorage.getItem('userData')
@@ -98,11 +125,11 @@ const Region: FC<IRegion> = ({obj}) => {
 
         if(userData) token = JSON.parse(userData).token
         else {
-            alert('Токен доступа отсутствует. Пройдите авторизацию')
+            alert('There is no access token.')
             return
         }       
 
-        //----------------------------------
+        //-------------------------
 
         try {
             let regionGeoJson: any = {
@@ -112,13 +139,14 @@ const Region: FC<IRegion> = ({obj}) => {
     
             let layers: any[] = obj.regionLayer.getLayers()
 
-            //console.log('obj.regionLayer.getLayers() = ', layers)           
+            if(layers.length === 0) {
+                alert('Operation is interrupted. The region has no elements.')
+                return
+            }                      
 
-            let arr: any[] = obj.regionItemInfo 
-
-            //console.log('obj.regionItemInfo=', obj.regionItemInfo)
+            let arr: any[] = obj.regionItemInfo             
     
-            for(let i=0; i< obj.regionItemInfo.length; i++){    
+            for(let i=0; i< obj.regionItemInfo.length; i++) {    
                 for(let j=0; j < layers.length; j++){
                     if(layers[j]._leaflet_id === arr[i][0]) {
                         let geo_json = layers[j].toGeoJSON() 
@@ -141,33 +169,23 @@ const Region: FC<IRegion> = ({obj}) => {
                     uuid: obj.uuid,
                     info: regionInfo,
                     geo_json: JSON.stringify([regionInfo, regionGeoJson])
-                }            
-    
-                data = await request('http://127.0.0.1:8000/api/update_region', 
-                                            'post',
-                                            body, 
-                                            {'Authorization': `Bearer ${token}`}) 
+                }              
 
-                /* data = await request('http://45.84.226.158:5050/api/update_region', 
+                data = await request(APP_API_URL + '/update_region', 
                                     'post',
                                     body, 
-                                    {'Authorization': `Bearer ${token}`}) */  
+                                    {'Authorization': `Bearer ${token}`})                
             }
             else{
                 let body: object = {
                     info: regionInfo,
                     geo_json: JSON.stringify([regionInfo, regionGeoJson])
-                }            
-    
-                data = await request('http://127.0.0.1:8000/api/add_region', 
-                                          'post',
-                                           body, 
-                                           {'Authorization': `Bearer ${token}`})
-
-                /* data = await request('http://45.84.226.158:5050/api/add_region', 
+                } 
+                
+                data = await request(APP_API_URL + '/add_region', 
                                     'post',
                                     body, 
-                                    {'Authorization': `Bearer ${token}`}) */   
+                                    {'Authorization': `Bearer ${token}`})                 
             }
                   
             console.log('data= ', data)
@@ -179,7 +197,7 @@ const Region: FC<IRegion> = ({obj}) => {
                 obj.regionLayer.remove()
                 removeRegionAction(obj.leaflet_id)
 
-                alert('Регион сохранен в базу данных')
+                alert('Region has saved to database.')
             }             
 
         } catch(e) {
@@ -188,7 +206,7 @@ const Region: FC<IRegion> = ({obj}) => {
         }  
     }
     
-    //----------------------------------------------------------------------------
+    //--------------------------------
 
     return (
         <div className="a__region" >
@@ -197,15 +215,15 @@ const Region: FC<IRegion> = ({obj}) => {
                 <span className={"a__idicators"}>
 
                    <i className={obj.leaflet_id === currentRegionId ? "fas fa-dot-circle a__active": "fas fa-dot-circle"} 
-                      title="сейчас редактируется"
+                      title="currently edited"
                    ></i> 
 
                    <i className={isChanged ? "fas fa-dot-circle a__active" : "fas fa-dot-circle"} 
-                      title="имеются несохраненные изменения"
+                      title="has unsaved changes"
                    ></i>  
 
                    <i className={isFromDb ? "fas fa-dot-circle a__active": "fas fa-dot-circle"}  
-                      title="загружен из бд" 
+                      title="loaded from database" 
                    ></i>
                 </span>
                 <span>{regionInfo}</span>
@@ -214,7 +232,7 @@ const Region: FC<IRegion> = ({obj}) => {
             <div className={"a__tool-panel"}>
 
                 <div className="a__btn a__remove-btn" 
-                     title="Удалить регион с панели редактирования"
+                     title="remove region from edit panel"
                      onClick={()=>removeRegionHandler(obj)}
                 >
                    <i className="fas fa-trash-alt"></i>
@@ -222,15 +240,15 @@ const Region: FC<IRegion> = ({obj}) => {
 
                 {obj.leaflet_id === currentRegionId ? 
                     <div className="a__btn a__pencil-btn" 
-                        title="Добавить информацию о регионе"
+                        title="add information about region"
                         onClick={()=>setIsOpend(state => !state)}
                     >
                        <i className="fas fa-pencil-alt"></i>
                     </div>
                     :
                     <div className="a__btn a__pencil-btn" 
-                        title="Добавить информацию о регионе"
-                        onClick={()=>alert('Начните редактирование этого региона')}
+                        title="add information about region"
+                        onClick={()=>alert('Start editing this region')}
                     >
                        <i className="fas fa-pencil-alt"></i>
                     </div>                    
@@ -238,53 +256,76 @@ const Region: FC<IRegion> = ({obj}) => {
 
                 {currentRegionId === -1 ?
                   <div className="a__btn a__save-btn" 
-                     title="Сохранить регион в бд"
+                     title="save region to database"
                      onClick={()=>saveRegionToDataBaseHandler(obj)}
                   >
                      <i className="fas fa-save" style={{color:"green"}}></i>
                   </div>
                   :
                   <div className="a__btn a__save-btn" 
-                     title="Сохранить регион в бд"
-                     onClick={()=>alert('Завершите редактирование региона.')}
+                     title="save region to database"
+                     onClick={()=>alert('Stop editing this region.')}
                   >
                      <i className="fas fa-save" style={{color:"Brown"}}></i>
                   </div>
                 }
+
+                <div className="a__btn a__cut-btn" 
+                     title="cut up region"
+                     onClick={()=>alert('is not implemented')}
+                >
+                   <i className="fas fa-cut"></i>
+                </div>
+
+                <div className="a__btn a__copy-btn" 
+                     title="copy region"
+                     onClick={()=>alert('is not implemented')}
+                >
+                   <i className="fas fa-copy"></i>
+                </div>                
+
                 <div className="a__btn a__narrow-btn" 
-                     title={isNarrowed? "Развернуть": "Свернуть"}
+                     title={isNarrowed? "increase": "decrease"}
                      onClick={()=>setIsNarrowed(state => !state)}
                 >
                    {isNarrowed? <i className="fas fa-arrow-down"></i> : <i className="fas fa-arrow-up"></i>}
                 </div>
 
-                {currentRegionId === -1 ?
+                {currentRegionId === obj.leaflet_id ?
                     <div className="a__btn a__start-editing-btn" 
-                        title="Начать редактирование"
+                         title="start editing"
+                         onClick={()=>alert('Region is already being edited')}
+                    >
+                       <i className="fas fa-play" style={{color:"Brown"}}></i>
+                    </div>                    
+                    : currentRegionId === -1 ?                    
+                    <div className="a__btn a__start-editing-btn" 
+                        title="start editing"
                         onClick={()=>startRegionEditing(obj)}
                     >
                       <i className="fas fa-play" style={{color:"green"}}></i>
                     </div>
                     :
                     <div className="a__btn a__start-editing-btn" 
-                        title="Начать редактирование"
-                        onClick={()=>alert('Регион уже редактируется')}
+                         title="start editing"
+                         onClick={()=>alert('Access denied. Some region is already being edited')}
                     >
-                      <i className="fas fa-play" style={{color:"Brown"}}></i>
-                    </div>
+                       <i className="fas fa-play" style={{color:"Brown"}}></i>
+                    </div> 
+                    
                 }
 
                 {currentRegionId === obj.leaflet_id ?
                     <div className="a__btn a__stop-editing-btn" 
-                        title="Остановить редактирование"
+                        title="stop editing"
                         onClick={()=>stopRegionEditing()}
                     >
                       <i className="fas fa-stop" style={{color:"green"}}></i>
                     </div>
                     :
                     <div className="a__btn a__stop-editing-btn" 
-                        title="Остановить редактирование"
-                        onClick={()=>alert('Регион уже не редактируется')}
+                        title="stop editing"
+                        onClick={()=>alert('The region is no longer being edited')}
                     >
                       <i className="fas fa-stop" style={{color:"Brown"}}></i>
                     </div>
@@ -302,7 +343,8 @@ const Region: FC<IRegion> = ({obj}) => {
 
             <div className={isNarrowed ? "a__region-items a__narrowed" : "a__region-items"}>
                 {
-                    obj.regionLayer.getLayers().map((layer:any, i:number)=>{                        
+                    obj.regionLayer.getLayers().map((layer:any, i:number) => { 
+
                         let new_arr: any[] = obj.regionItemInfo.filter((arr)=>{
                             return arr[0] === layer._leaflet_id
                         })
@@ -317,9 +359,6 @@ const Region: FC<IRegion> = ({obj}) => {
                     })
                 }
             </div>
-
-            
-
         </div>
     )
 }

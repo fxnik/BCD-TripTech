@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import { FC, useEffect } from 'react';
 
 import {
   BrowserRouter as Router,
@@ -6,8 +6,6 @@ import {
   Route,  
   Redirect 
 } from "react-router-dom";
-
-import { useHistory } from "react-router-dom";
 
 import AppContainer from './components/AppContainer/AppContainer'
 import LeafletMap from './components/LeafletMap/LeafletMap'
@@ -23,11 +21,9 @@ import './App.css';
 //----------------------------------------------------------
 
 const App: FC = () => {
-  let history = useHistory();
-  const { isAuthorized } = useTypedSelector(state => state.auth)
-  const { setUserIsAuthorizedAction, } = useActions() 
   
-  //console.log('isAuthorized= ', isAuthorized)
+  const { isAuthorized } = useTypedSelector(state => state.auth)
+  const { setUserIsAuthorizedAction, } = useActions()  
 
   /**
    *  to find out if user is already authorized 
@@ -38,7 +34,7 @@ const App: FC = () => {
     if(userData) setUserIsAuthorizedAction(true)        
   }, [])
   
-  //------------------------------------------
+  //------------------
 
   return (
      <Router>       
@@ -67,9 +63,7 @@ const App: FC = () => {
           <Redirect to="/" />
           
         </Switch>      
-    </Router>
-
-    
+    </Router>    
   );
 }
 

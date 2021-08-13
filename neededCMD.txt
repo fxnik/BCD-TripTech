@@ -31,13 +31,13 @@ https://leaflet-extras.github.io/leaflet-providers/preview/
 https://github.com/danwild/leaflet-velocity
 https://www.npmjs.com/package/react-leaflet-markercluster
 
-polygon.on('contextmenu', function () {
-            alert('contextmenu')
-        });
 
 https://react-redux.js.org/using-react-redux/usage-with-typescript
 https://redux.js.org/api/bindactioncreators
 
  sudo rsync -avz build nikolay@45.84.226.158:/var/www
  sudo rsync -avz laravel-server-03.zip nikolay@45.84.226.158:/var/www
- 
+
+ sudo npm install concurrently --save-dev
+ sudo npm install --save-dev cross-env
+ npm install --save-dev dotenv

@@ -1,11 +1,10 @@
-import React from 'react'
 
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useActions } from '../../hooks/useActions';
 
 import './toggleButtonStyle.css';
 
-//===================================
+//--------------------
 
 const ToggleButton = () => {
     const { viewPanelIsOpened } = useTypedSelector(state => state.app)
@@ -18,7 +17,7 @@ const ToggleButton = () => {
     return (
         <div className={ viewPanelIsOpened? "a__toggle-button a__is-active": "a__toggle-button"} 
              onClick={toggleViewPanel}
-             title="открыть/закрыть"
+             title="open/close"
         >
             <i className="fas fa-exchange-alt"></i>
         </div>
