@@ -1,14 +1,9 @@
-
-
-.leaflet-container /* inner leaflet class. Look at DOM */
-{
-    width: 100%;
-    height: 100%;
+.leaflet-container /* inner leaflet class. Look at DOM */ {
+  width: 100%;
+  height: 100%;
 }
 
-.a__leaflet-map
-{
-    width: 100%;
-    height: 100%;
+.a__leaflet-map {
+  width: 100%;
+  height: 100%;
 }
-

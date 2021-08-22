@@ -1,196 +1,173 @@
-
-.a__auth-form-container
-{
-    position: relative;
-    display: flex;
-    justify-content:center;
-    align-items: center;
-    overflow: hidden;
-    width: 100vw;
-    height: 100vh;    
-    /* background-image: url("http://localhost:3000/images/map.jpg"); */  
-    background-image: url("http://45.84.226.158/images/map.jpg");   
-    background-repeat: no-repeat;   
-    background-size: cover;
+.a__auth-form-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  /* background-image: url("http://localhost:3000/images/map.jpg"); */
+  background-image: url("http://45.84.226.158/images/map.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
-.a__auth-form
-{
-    position: relative;
-    overflow: hidden;
-    width: 300px;    
-    height: 250px;    
-    background: linear-gradient(to bottom, #fccc74, #ec8b4a);
-    box-shadow: 1px 2px 7px #111;
-    border-radius: 7px;
-    padding: 10px; 
+.a__auth-form {
+  position: relative;
+  overflow: hidden;
+  width: 300px;
+  height: 250px;
+  background: linear-gradient(to bottom, #fccc74, #ec8b4a);
+  box-shadow: 1px 2px 7px #111;
+  border-radius: 7px;
+  padding: 10px;
 }
 
-.a__auth-form > span
-{    
-    position: relative; 
-    font-size: 24px;
-    color: rgb(90, 89, 89);
-    font-weight: bold;
+.a__auth-form > span {
+  position: relative;
+  font-size: 24px;
+  color: rgb(90, 89, 89);
+  font-weight: bold;
 }
 
-.a__auth-form > .a__email
-{
+.a__auth-form > .a__email {
   position: relative;
   margin-top: 20px;
 }
 
-.a__auth-form > .a__email > span
-{
-    color: rgb(95, 92, 92);
-    font-size: 12px;
+.a__auth-form > .a__email > span {
+  color: rgb(95, 92, 92);
+  font-size: 12px;
 }
 
-.a__auth-form > .a__email > input
-{
-    position: relative;
-    display: block;
-    margin-top: 5px;
-    outline: none;
-    border-radius: 4px;
-    border: 0;
-    height: 30px;
-    width: 100%;
-    padding-left: 5px;
-    font-size: 14px;        
+.a__auth-form > .a__email > input {
+  position: relative;
+  display: block;
+  margin-top: 5px;
+  outline: none;
+  border-radius: 4px;
+  border: 0;
+  height: 30px;
+  width: 100%;
+  padding-left: 5px;
+  font-size: 14px;
 }
 
-
-.a__auth-form > .a__password
-{
+.a__auth-form > .a__password {
   position: relative;
   margin-top: 15px;
 }
 
-.a__auth-form > .a__password > span
-{
-    color: rgb(95, 92, 92);
-    font-size: 12px;
+.a__auth-form > .a__password > span {
+  color: rgb(95, 92, 92);
+  font-size: 12px;
 }
 
-.a__auth-form > .a__password > input
-{
-    position: relative;
-    margin-top: 5px; 
-    outline: none; 
-    border-radius: 4px;
-    border: 0;
-    height: 30px;
-    width: 100%;
-    padding-left: 5px;
-    font-size: 14px;
+.a__auth-form > .a__password > input {
+  position: relative;
+  margin-top: 5px;
+  outline: none;
+  border-radius: 4px;
+  border: 0;
+  height: 30px;
+  width: 100%;
+  padding-left: 5px;
+  font-size: 14px;
 }
 
-.a__auth-form > .a__buttons
-{
-   position: absolute;
-   right: 10px;
-   bottom: 20px;
+.a__auth-form > .a__buttons {
+  position: absolute;
+  right: 10px;
+  bottom: 20px;
 }
 
-.a__auth-form > .a__buttons > .a__sign-btn
-{
-    position: relative;
-    display: inline-block;
-    margin-right: 20px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.5s;
+.a__auth-form > .a__buttons > .a__sign-btn {
+  position: relative;
+  display: inline-block;
+  margin-right: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.5s;
 }
 
-.a__auth-form > .a__buttons > .a__sign-btn:hover
-{
-    font-size: 16px;
+.a__auth-form > .a__buttons > .a__sign-btn:hover {
+  font-size: 16px;
 }
 
-.a__auth-form > .a__buttons > .a__sign-submit-btn
-{
-    position: relative;
-    display: inline-block;
-    font-size: 14px;
-    width: 60px;
-    height: 30px;
-    background: rgb(224, 224, 224);
-    cursor: pointer;
-    line-height: 30px;
-    text-align: center;
-    border-radius: 4px;
-    box-shadow: 1px 2px 4px rgb(77, 76, 76);  
-    transition: 0.3s;  
+.a__auth-form > .a__buttons > .a__sign-submit-btn {
+  position: relative;
+  display: inline-block;
+  font-size: 14px;
+  width: 60px;
+  height: 30px;
+  background: rgb(224, 224, 224);
+  cursor: pointer;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 4px;
+  box-shadow: 1px 2px 4px rgb(77, 76, 76);
+  transition: 0.3s;
 }
 
-.a__auth-form > .a__buttons > .a__sign-submit-btn:hover
-{
-    box-shadow: 0px 1px 1px rgb(77, 76, 76); 
+.a__auth-form > .a__buttons > .a__sign-submit-btn:hover {
+  box-shadow: 0px 1px 1px rgb(77, 76, 76);
 }
 
-.a__invalid
-{    
-    background: #fdd3d0;
-    box-shadow: 0 0 10px 2px  rgb(241, 53, 53);
+.a__invalid {
+  background: #fdd3d0;
+  box-shadow: 0 0 10px 2px rgb(241, 53, 53);
 }
 
 /* -------------- Spiner ------------------ */
 
-.a__lds-dual-ring-auth 
-{
-    display: inline-block;
-    width: 50px;
-    height: 50px;    
+.a__lds-dual-ring-auth {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
 }
 
-.a__lds-dual-ring-auth:after 
-{
-    content: " ";
-    display: block;
-    width: 40px;
-    height: 40px;
-    margin: 2px;
-    border-radius: 50%;
-    border: 4px solid rgb(255, 255, 254);
-    border-color: rgb(253, 253, 253) transparent rgb(248, 247, 247) transparent;
-    animation: lds-dual-ring-auth 1.0s linear infinite;
+.a__lds-dual-ring-auth:after {
+  content: " ";
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 2px;
+  border-radius: 50%;
+  border: 4px solid rgb(255, 255, 254);
+  border-color: rgb(253, 253, 253) transparent rgb(248, 247, 247) transparent;
+  animation: lds-dual-ring-auth 1s linear infinite;
 }
 
-@keyframes lds-dual-ring-auth 
-{
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
+@keyframes lds-dual-ring-auth {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-.a__auth-form > .a__spinner
-{
-    position: absolute;
-    display: flex;
-    justify-content:center;
-    align-items:center;
-    width: 50px;
-    height: 50px;
-    text-align: center;
-    margin: 4px;      
-    top: 4px;
-    right: 4px; 
+.a__auth-form > .a__spinner {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  margin: 4px;
+  top: 4px;
+  right: 4px;
 }
 
-.a__auth-form > .a__spinner.a__disabled
-{
-   display: none;
+.a__auth-form > .a__spinner.a__disabled {
+  display: none;
 }
 
-.a__auth-form > .a__spinner > div
-{
-    position: absolute;
-    z-index: 10;
-    font-size: 12px;
-    color: rgb(253, 253, 253);
-    font-weight: 700;
+.a__auth-form > .a__spinner > div {
+  position: absolute;
+  z-index: 10;
+  font-size: 12px;
+  color: rgb(253, 253, 253);
+  font-weight: 700;
 }

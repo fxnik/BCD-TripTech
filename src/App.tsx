@@ -1,72 +1,67 @@
-import { FC, useEffect } from 'react';
+import { FC, useEffect } from "react";
 
 import {
   BrowserRouter as Router,
   Switch,
-  Route,  
-  Redirect 
+  Route,
+  Redirect,
 } from "react-router-dom";
 
-import AppContainer from './components/AppContainer/AppContainer'
-import LeafletMap from './components/LeafletMap/LeafletMap'
-import ViewPanel from './components/ViewPanel/ViewPanel'
-import ToggleButton from './components/ToggleButton/ToggleButton'
-import AuthForm from './components/AuthForm/AuthForm'
+import AppContainer from "./components/AppContainer/AppContainer";
+import LeafletMap from "./components/LeafletMap/LeafletMap";
+import ViewPanel from "./components/ViewPanel/ViewPanel";
+import ToggleButton from "./components/ToggleButton/ToggleButton";
+import AuthForm from "./components/AuthForm/AuthForm";
 
-import { useTypedSelector } from './hooks/useTypedSelector';
-import { useActions } from './hooks/useActions';
+import { useTypedSelector } from "./hooks/useTypedSelector";
+import { useActions } from "./hooks/useActions";
 
-import './App.css';
+import "./App.css";
 
 //----------------------------------------------------------
 
 const App: FC = () => {
-  
-  const { isAuthorized } = useTypedSelector(state => state.auth)
-  const { setUserIsAuthorizedAction, } = useActions()  
+  const { isAuthorized } = useTypedSelector((state) => state.auth);
+  const { setUserIsAuthorizedAction } = useActions();
 
   /**
-   *  to find out if user is already authorized 
+   *  to find out if user is already authorized
    *  to cancel showing authorization form
    */
-  useEffect(()=>{
-    let userData: string | null = localStorage.getItem('userData') 
-    if(userData) setUserIsAuthorizedAction(true)        
-  }, [])
-  
+  useEffect(() => {
+    let userData: string | null = localStorage.getItem("userData");
+    if (userData) setUserIsAuthorizedAction(true);
+  }, []);
+
   //------------------
 
   return (
-     <Router>       
-        <Switch>
+    <Router>
+      <Switch>
+        <Route exact path="/">
+          {isAuthorized ? <Redirect to="/map" /> : <Redirect to="/auth" />}
+        </Route>
 
-          <Route exact  path="/" >
-             {isAuthorized ? <Redirect to="/map" /> : <Redirect to="/auth" />}
-          </Route>
+        <Route path="/auth">
+          {isAuthorized ? <Redirect to="/map" /> : <AuthForm />}
+        </Route>
 
-          <Route path="/auth">
-            {isAuthorized ? <Redirect to="/map" /> : <AuthForm />}             
-          </Route>
+        <Route path="/map">
+          {isAuthorized ? (
+            <AppContainer>
+              <LeafletMap />
+              <ViewPanel />
+              <ToggleButton />
+            </AppContainer>
+          ) : (
+            <Redirect to="/auth" />
+          )}
+        </Route>
 
-          <Route path="/map" >
-              {isAuthorized ? 
-                <AppContainer>
-                  <LeafletMap />
-                  <ViewPanel />
-                  <ToggleButton />  
-
-                </AppContainer>
-              : 
-              <Redirect to="/auth" />}             
-          </Route>
-
-          <Redirect to="/" />
-          
-        </Switch>      
-    </Router>    
+        <Redirect to="/" />
+      </Switch>
+    </Router>
   );
-}
+};
 
 export default App;
-
-

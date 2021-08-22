@@ -1,144 +1,127 @@
-
-.a__region
-{
-    position: relative;
-    width:calc(100% - 8px);
-    min-height: 50px;
-    background: rgb(255, 255, 255);
-    margin: 7px auto 20px auto;
-    border-radius: 4px;
-    box-shadow: 0.5px 1.5px 3px  rgb(49, 49, 49);
-    font-size: 12px;
-    padding-bottom: 1px;
-    transition: 0.5s;
+.a__region {
+  position: relative;
+  width: calc(100% - 8px);
+  min-height: 50px;
+  background: rgb(255, 255, 255);
+  margin: 7px auto 20px auto;
+  border-radius: 4px;
+  box-shadow: 0.5px 1.5px 3px rgb(49, 49, 49);
+  font-size: 12px;
+  padding-bottom: 1px;
+  transition: 0.5s;
 }
 
-.a__region > .a__region-header
-{
-    position: relative;
-    width: 100%;
-    height: 15px;    
-    background: rgb(14, 140, 172);
-    color: #fff;    
-    border-radius: 4px 4px 0 0;
+.a__region > .a__region-header {
+  position: relative;
+  width: 100%;
+  height: 16px;
+  background: rgb(14, 140, 172);
+  color: #fff;
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+  line-height: 16px;
 }
 
-.a__region > .a__tool-panel
-{
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 20px;
-    background: rgb(231, 230, 230);
-    color: rgb(121, 119, 119);
-    padding: 2px;
-    font-size: 8px;    
-    border-bottom: 1px solid rgb(194, 193, 193);    
+.a__region > .a__tool-panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 20px;
+  background: rgb(231, 230, 230);
+  color: rgb(121, 119, 119);
+  padding: 2px;
+  font-size: 8px;
+  border-bottom: 1px solid rgb(194, 193, 193);
 }
 
-.a__region > .a__region-header > .a__idicators > .fas
-{    
-    color: rgb(184, 180, 180);
-    font-size: 10px;
-    margin: 0 3px 0 3px;
-    transition: 0.3s;
+.a__region > .a__region-header > .a__idicators > .fas {
+  color: rgb(184, 180, 180);
+  font-size: 10px;
+  margin: 0 3px 0 3px;
+  transition: 0.3s;
 }
 
-.a__region > .a__region-header > .a__idicators > .fas.a__active
-{
-    color: rgb(244, 247, 241); 
+.a__region > .a__region-header > .a__idicators > .fas.a__active {
+  color: rgb(244, 247, 241);
 }
 
-.a__region > .a__tool-panel > .a__btn
-{
-   position: relative;
-   width: 16px;
-   height: 16px;
-   border: 0px solid rgb(134, 133, 133);
-   border-radius: 2px;   
-   background: transparent;
-   margin: 0 2px 0 1px;
+.a__region > .a__tool-panel > .a__btn {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border: 0px solid rgb(134, 133, 133);
+  border-radius: 2px;
+  background: transparent;
+  margin: 0 2px 0 1px;
 }
 
-.a__region > .a__tool-panel > .a__btn > .fas
-{
-   position: absolute;
-   line-height: 15px;
-   width: 100%;
-   height: 100%;   
-   font-size: 12px;
-   text-align: center;
-   color: rgb(95, 92, 92);
-   transition: 0.5s;
-   cursor: pointer;
+.a__region > .a__tool-panel > .a__btn > .fas {
+  position: absolute;
+  line-height: 15px;
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+  text-align: center;
+  color: rgb(95, 92, 92);
+  transition: 0.5s;
+  cursor: pointer;
 }
 
-.a__region > .a__tool-panel > .a__btn > .fas:hover
-{
-    color: rgb(22, 22, 22); 
-    font-size: 15px;    
+.a__region > .a__tool-panel > .a__btn > .fas:hover {
+  color: rgb(22, 22, 22);
+  font-size: 15px;
 }
 
-.a__region >.a__comments
-{
-   position: relative;
-   overflow-y: hidden;
-   width: 100%;
-   height: 0px;   
-   background: rgb(25, 165, 175);   
-   transition: 0.5s; 
-   box-shadow: inset 0px 2px 3px rgb(75, 74, 74);  
+.a__region > .a__comments {
+  position: relative;
+  overflow-y: hidden;
+  width: 100%;
+  height: 0px;
+  background: rgb(25, 165, 175);
+  transition: 0.5s;
+  box-shadow: inset 0px 2px 3px rgb(75, 74, 74);
 }
 
-.a__region >.a__comments.a__opened
-{
-   height: 73px;  
+.a__region > .a__comments.a__opened {
+  height: 73px;
 }
 
-
-.a__region >.a__comments > span
-{
-    position: relative;
-    display: inline-block;
-    margin: 7px 0 2px 4px; 
-    font-size: 10px; 
-    color: #fff;
+.a__region > .a__comments > span {
+  position: relative;
+  display: inline-block;
+  margin: 7px 0 2px 4px;
+  font-size: 10px;
+  color: #fff;
 }
 
-
-.a__region >.a__comments > input
-{  
-   position: relative;
-   width: calc(100% - 8px);
-   outline: none;
-   margin: 4px;
-   border: 1px solid rgb(136, 133, 133);
-   border-radius: 4px; 
-   padding-left: 4px;  
+.a__region > .a__comments > input {
+  position: relative;
+  width: calc(100% - 8px);
+  outline: none;
+  margin: 4px;
+  border: 1px solid rgb(136, 133, 133);
+  border-radius: 4px;
+  padding-left: 4px;
 }
 
-.a__region >.a__comments > textarea
-{
-    position: relative;
-    width: calc(100% - 8px);
-    outline: none;
-    margin: 4px;
-    border: 1px solid rgb(136, 133, 133);
-    border-radius: 4px; 
-    padding-left: 4px; 
-    resize: none;
+.a__region > .a__comments > textarea {
+  position: relative;
+  width: calc(100% - 8px);
+  outline: none;
+  margin: 4px;
+  border: 1px solid rgb(136, 133, 133);
+  border-radius: 4px;
+  padding-left: 4px;
+  resize: none;
 }
 
-.a__region > .a__region-items
-{
-    position: relative;
-    width: 100%;
-
+.a__region > .a__region-items {
+  position: relative;
+  width: 100%;
 }
 
-.a__region > .a__region-items.a__narrowed
-{
-   overflow-y: hidden;
-   height: 25px;
+.a__region > .a__region-items.a__narrowed {
+  overflow-y: hidden;
+  height: 25px;
 }
