@@ -12,7 +12,7 @@ import {
   addNewRegionAction,
   removeRegionItemAction,
   updateRegionItemInfoAction,  
-  CallChangeIndicatorFunctionAction,
+  CallChangeIndicatorFunctionAction,    
 } from "../store/reducers/mapReducer";
 
 import { setUserIsAuthorizedAction } from "../store/reducers/authReducer";
@@ -33,7 +33,7 @@ export const useActions = () => {
       addNewRegionAction,
       removeRegionItemAction,
       updateRegionItemInfoAction,      
-      CallChangeIndicatorFunctionAction,
+      CallChangeIndicatorFunctionAction,           
 
       //-----------------------------
       setUserIsAuthorizedAction,

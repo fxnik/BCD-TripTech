@@ -2,6 +2,7 @@ import React, { FC, useState, useEffect } from "react";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useActions } from "../../hooks/useActions";
 import { IRegionItem } from "../../types/types";
+import {IMapRegion} from '../../store/reducers/mapReducer'
 import L from "leaflet";
 
 import "./regionItemStyle.css";
@@ -15,7 +16,7 @@ const RegionItem: FC<IRegionItem> = ({ layer, info, region_id, signaler }) => {
     CallChangeIndicatorFunctionAction,
   } = useActions();
 
-  const { mapPointer: map, currentRegionId } = useTypedSelector(
+  const { mapPointer: map, currentRegionId, onMapRegions } = useTypedSelector(
     (state) => state.app
   );
 
@@ -51,6 +52,13 @@ const RegionItem: FC<IRegionItem> = ({ layer, info, region_id, signaler }) => {
     if (!answer) return;
 
     CallChangeIndicatorFunctionAction();
+
+    onMapRegions.forEach((obj: IMapRegion) => {
+      if (obj.leaflet_id === currentRegionId) {        
+        obj.regionLayer.removeLayer(layer._leaflet_id);
+      }      
+    });
+
     removeRegionItemAction(layer._leaflet_id);
   };
 

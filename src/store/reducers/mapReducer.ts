@@ -147,8 +147,7 @@ export const mapReducer = (state = initialState, action: AppAction) => {
       let layer: any = action.payload;
 
       let newOnMapRegions = state.onMapRegions.map((obj: IMapRegion) => {
-        if (obj.leaflet_id === state.currentRegionId) {
-          obj.regionLayer.addLayer(action.payload);
+        if (obj.leaflet_id === state.currentRegionId) {          
           obj.regionItemInfo.push([layer._leaflet_id, "New element"]);
         }
         return obj;
@@ -173,14 +172,11 @@ export const mapReducer = (state = initialState, action: AppAction) => {
 
       let newMapRegions = state.onMapRegions.map((obj: IMapRegion) => {
         if (obj.leaflet_id === state.currentRegionId) {
-          obj.regionLayer.removeLayer(prev_layer_id);
-
           obj.regionItemInfo = obj.regionItemInfo.filter(
             (arr) => arr[0] !== prev_layer_id
           );
 
           new_layer_arr.forEach((element) => {
-            obj.regionLayer.addLayer(element);
             obj.regionItemInfo.push([element._leaflet_id, "New element"]);
           });
         }
@@ -209,8 +205,7 @@ export const mapReducer = (state = initialState, action: AppAction) => {
           newRegionItemInfoArr = obj.regionItemInfo.filter(
             (arr) => arr[0] !== action.payload
           );
-          obj.regionItemInfo = newRegionItemInfoArr;
-          obj.regionLayer.removeLayer(action.payload);
+          obj.regionItemInfo = newRegionItemInfoArr;          
         }
         return obj;
       });
