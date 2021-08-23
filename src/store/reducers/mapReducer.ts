@@ -215,16 +215,17 @@ export const mapReducer = (state = initialState, action: AppAction) => {
     //--------------------
     case AppActionTypes.UPDATE_REGION_ITEM_INFO:
       let layer_id = action.payload[0];
-      let info_str = action.payload[1];
+      let info_str = action.payload[1];      
 
-      state.onMapRegions.forEach((obj: IMapRegion) => {
+      let arr: any[] = state.onMapRegions.map((obj: IMapRegion) => {
         if (obj.leaflet_id === state.currentRegionId) {
           obj.regionItemInfo.forEach((arr) => {
             if (arr[0] === layer_id) arr[1] = info_str;
           });
         }
+        return obj;
       });
-      return { ...state };
+      return { ...state, onMapRegions: [...arr]};
 
     //---------------------
     case AppActionTypes.CALL_CHANGE_INDICATOR_FUNCTION:
