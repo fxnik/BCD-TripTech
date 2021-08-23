@@ -311,4 +311,4 @@ export const CallChangeIndicatorFunctionAction = (
 ): AppAction => ({
   type: AppActionTypes.CALL_CHANGE_INDICATOR_FUNCTION,
   payload: payload,
-});
+});  
