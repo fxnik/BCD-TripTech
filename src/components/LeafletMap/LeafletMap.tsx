@@ -110,7 +110,7 @@ const LeafletMap: FC = () => {
 
         CallChangeIndicatorFunctionAction();
 
-        onMapRegions.forEach((obj: IMapRegion) => { //==============>>>
+        onMapRegions.forEach((obj: IMapRegion) => { 
           if (obj.leaflet_id === currentRegionId) {
             obj.regionLayer.addLayer(rectangle);            
           }          

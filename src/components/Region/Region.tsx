@@ -5,6 +5,7 @@ import { useHttp } from "../../hooks/useHttp";
 import L from "leaflet";
 import { IRegion } from "../../types/types";
 import RegionItem from "../RegionItem/RegionItem";
+import { IMapRegion } from "../../store/reducers/mapReducer";
 import "./regionStyle.css";
 
 //--------------------------
@@ -29,11 +30,21 @@ const Region: FC<IRegion> = ({ obj }) => {
     mapPointer: map,
     currentRegionId,
     regionHasUnsavedChanges,
+    onMapRegions,
   } = useTypedSelector((state) => state.app);
 
   //-------------------
 
-  const { removeRegionAction, setCurrentRegionIdAction } = useActions();
+  const {
+    removeRegionAction,
+    setCurrentRegionIdAction,
+    addNewRegionAction,
+    removeRegionItemAction,
+    CallChangeIndicatorFunctionAction,
+    removeRegionItemsAfterRegionCuttingUpAction,
+    setCheckedRegionAction,
+    unsetCheckedRegionAction
+  } = useActions();
 
   //-------------------
 
@@ -43,6 +54,7 @@ const Region: FC<IRegion> = ({ obj }) => {
   const [isNarrowed, setIsNarrowed] = useState(false);
   const [isFromDb, setIsFromBd] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   //-------------------
 
@@ -52,6 +64,9 @@ const Region: FC<IRegion> = ({ obj }) => {
   useEffect(() => {
     if (obj.info) {
       setRegionInfo(obj.info);
+    }
+
+    if (obj.uuid) {
       setIsFromBd(true);
     }
   }, []);
@@ -75,6 +90,24 @@ const Region: FC<IRegion> = ({ obj }) => {
       setIsChanged((state) => true);
     }
   }, [regionHasUnsavedChanges]);
+
+  //--------------------
+
+  useEffect(() => {
+    if (obj.createdAfterCopying) setIsChanged((state) => true);
+    if (obj.createdAfterCutting) setIsChanged((state) => true);
+    if (obj.createdAfterGrouping) setIsChanged((state) => true);
+  }, []);
+
+  //--------------------
+
+  useEffect(() => {
+    if (isChecked) {
+      setCheckedRegionAction(obj.leaflet_id)
+    } else {
+      unsetCheckedRegionAction(obj.leaflet_id)
+    }
+  }, [isChecked]);
 
   //--------------------
 
@@ -226,7 +259,398 @@ const Region: FC<IRegion> = ({ obj }) => {
     }
   };
 
-  //--------------------------------
+  //-------------
+
+  const copyRegionHandler = () => {
+    let answer: boolean = window.confirm("Do you really want to copy region ?");
+    if (!answer) return;
+
+    let regionGeoJson: any = {
+      type: "FeatureCollection",
+      features: [],
+    };
+
+    let layers: any[] = obj.regionLayer.getLayers();
+
+    if (layers.length === 0) {
+      alert("Operation is interrupted. The region has no elements.");
+      return;
+    }
+
+    //------------
+
+    let arr: any[] = obj.regionItemInfo;
+
+    for (let i = 0; i < obj.regionItemInfo.length; i++) {
+      for (let j = 0; j < layers.length; j++) {
+        if (layers[j]._leaflet_id === arr[i][0]) {
+          let geo_json = layers[j].toGeoJSON();
+          geo_json.properties["information"] = arr[i][1];
+
+          if (layers[j] instanceof L.Circle)
+            geo_json.properties["radius"] = layers[j].getRadius();
+
+          regionGeoJson.features.push(geo_json);
+        }
+      }
+    }
+
+    //console.log("regionGeoJson= ", regionGeoJson);
+
+    //---------------
+
+    let original_geo_json: any = regionGeoJson;
+    let regionItemInfo: any = [];
+
+    //--------------
+
+    var newLayer = L.geoJSON(original_geo_json, {
+      pointToLayer: function (feature, latlng) {
+        if (feature.properties.radius) {
+          var circle: any = new L.Circle(latlng, feature.properties.radius);
+        }
+        return circle;
+      },
+
+      onEachFeature: function (feature, layer) {},
+    });
+
+    let geoJsonLayersArr: any = newLayer.getLayers();
+
+    //console.log("geoJsonLayersArr=", geoJsonLayersArr);
+
+    //-------------
+
+    let layerGroup: any = L.layerGroup([]);
+    layerGroup.addTo(map!);
+
+    for (let i = 0; i < geoJsonLayersArr.length; i++) {
+      if (geoJsonLayersArr[i].feature.geometry.type === "Polygon") {
+        let polygon: any = L.polygon(geoJsonLayersArr[i]._latlngs).addTo(map!);
+        polygon.pm._shape = "Polygon";
+
+        regionItemInfo.push([
+          polygon._leaflet_id,
+          geoJsonLayersArr[i].feature.properties.information,
+        ]);
+
+        polygon.on("pm:remove", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+          removeRegionItemAction(polygon._leaflet_id);
+        });
+
+        polygon.on("pm:dragend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polygon.on("pm:rotateend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polygon.on("pm:edit", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        layerGroup.addLayer(polygon);
+      } else if (geoJsonLayersArr[i].feature.geometry.type === "LineString") {
+        let polyline: any = L.polyline(geoJsonLayersArr[i]._latlngs).addTo(
+          map!
+        );
+        polyline.pm._shape = "Line";
+
+        regionItemInfo.push([
+          polyline._leaflet_id,
+          geoJsonLayersArr[i].feature.properties.information,
+        ]);
+
+        polyline.on("pm:remove", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+          removeRegionItemAction(polyline._leaflet_id);
+        });
+
+        polyline.on("pm:dragend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polyline.on("pm:rotateend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polyline.on("pm:edit", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        layerGroup.addLayer(polyline);
+      } else if (
+        geoJsonLayersArr[i].feature.geometry.type === "Point" &&
+        geoJsonLayersArr[i].feature.properties.radius
+      ) {
+        let circle: any = L.circle(
+          geoJsonLayersArr[i]._latlng,
+          geoJsonLayersArr[i].feature.properties.radius
+        ).addTo(map!);
+        circle.pm._shape = "Circle";
+
+        regionItemInfo.push([
+          circle._leaflet_id,
+          geoJsonLayersArr[i].feature.properties.information,
+        ]);
+
+        circle.on("pm:remove", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+          removeRegionItemAction(circle._leaflet_id);
+        });
+
+        circle.on("pm:dragend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        circle.on("pm:edit", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        layerGroup.addLayer(circle);
+      }
+    }
+
+    addNewRegionAction([
+      {
+        leaflet_id: layerGroup._leaflet_id,
+        regionLayer: layerGroup,
+        regionItemInfo: [...regionItemInfo],
+        info: "Copy of " + regionInfo,
+        checkedElementsId: [],
+        createdAfterCopying: true,
+        createdAfterCutting: false,
+        createdAfterGrouping: false,
+      },
+      layerGroup._leaflet_id,
+    ]);
+
+    geoJsonLayersArr.forEach((layer: any) => {
+      layer.remove();
+    });
+    //--
+  };
+
+  //-------------
+
+  const cutRegionHandler = () => {
+    let answer: boolean = window.confirm(
+      "Do you really want to cut up region ?"
+    );
+    if (!answer) return;
+
+    //------------
+
+    if(obj.checkedElementsId.length === 0){
+      alert('To cut up region you need to select a few elements')
+      return
+    }
+
+    //------------
+
+    let regionGeoJson: any = {
+      type: "FeatureCollection",
+      features: [],
+    };
+
+    let layers: any[] = obj.regionLayer.getLayers();
+
+    if (layers.length === 0) {
+      alert("Operation is interrupted. The region has no elements.");
+      return;
+    }    
+
+    //------------
+
+    let buffer: any[] = [];
+
+    for (let i = 0; i < layers.length; i++) {
+      for (let j = 0; j < obj.checkedElementsId.length; j++) {
+        if (layers[i]._leaflet_id === obj.checkedElementsId[j]) {
+          buffer.push(layers[i]);
+          break;
+        }
+      }
+    }
+
+    layers = buffer;
+
+    //-------------
+
+    let arr: any[] = obj.regionItemInfo;
+
+    for (let i = 0; i < obj.regionItemInfo.length; i++) {
+      for (let j = 0; j < layers.length; j++) {
+        if (layers[j]._leaflet_id === arr[i][0]) {
+          let geo_json = layers[j].toGeoJSON();
+          geo_json.properties["information"] = arr[i][1];
+
+          if (layers[j] instanceof L.Circle)
+            geo_json.properties["radius"] = layers[j].getRadius();
+
+          regionGeoJson.features.push(geo_json);
+        }
+      }
+    }
+
+    //console.log("cut up -- regionGeoJson= ", regionGeoJson);
+
+    //---------------
+
+    let original_geo_json: any = regionGeoJson;
+    let regionItemInfo: any = [];
+
+    //--------------
+
+    var newLayer = L.geoJSON(original_geo_json, {
+      pointToLayer: function (feature, latlng) {
+        if (feature.properties.radius) {
+          var circle: any = new L.Circle(latlng, feature.properties.radius);
+        }
+        return circle;
+      },
+
+      onEachFeature: function (feature, layer) {},
+    });
+
+    let geoJsonLayersArr: any = newLayer.getLayers();
+
+    //console.log("---cut up --- geoJsonLayersArr=", geoJsonLayersArr);
+
+    //-------------
+
+    let layerGroup: any = L.layerGroup([]);
+    layerGroup.addTo(map!);
+
+    for (let i = 0; i < geoJsonLayersArr.length; i++) {
+      if (geoJsonLayersArr[i].feature.geometry.type === "Polygon") {
+        let polygon: any = L.polygon(geoJsonLayersArr[i]._latlngs).addTo(map!);
+        polygon.pm._shape = "Polygon";
+
+        regionItemInfo.push([
+          polygon._leaflet_id,
+          geoJsonLayersArr[i].feature.properties.information,
+        ]);
+
+        polygon.on("pm:remove", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+          removeRegionItemAction(polygon._leaflet_id);
+        });
+
+        polygon.on("pm:dragend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polygon.on("pm:rotateend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polygon.on("pm:edit", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        layerGroup.addLayer(polygon);
+      } else if (geoJsonLayersArr[i].feature.geometry.type === "LineString") {
+        let polyline: any = L.polyline(geoJsonLayersArr[i]._latlngs).addTo(
+          map!
+        );
+        polyline.pm._shape = "Line";
+
+        regionItemInfo.push([
+          polyline._leaflet_id,
+          geoJsonLayersArr[i].feature.properties.information,
+        ]);
+
+        polyline.on("pm:remove", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+          removeRegionItemAction(polyline._leaflet_id);
+        });
+
+        polyline.on("pm:dragend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polyline.on("pm:rotateend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polyline.on("pm:edit", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        layerGroup.addLayer(polyline);
+      } else if (
+        geoJsonLayersArr[i].feature.geometry.type === "Point" &&
+        geoJsonLayersArr[i].feature.properties.radius
+      ) {
+        let circle: any = L.circle(
+          geoJsonLayersArr[i]._latlng,
+          geoJsonLayersArr[i].feature.properties.radius
+        ).addTo(map!);
+        circle.pm._shape = "Circle";
+
+        regionItemInfo.push([
+          circle._leaflet_id,
+          geoJsonLayersArr[i].feature.properties.information,
+        ]);
+
+        circle.on("pm:remove", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+          removeRegionItemAction(circle._leaflet_id);
+        });
+
+        circle.on("pm:dragend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        circle.on("pm:edit", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        layerGroup.addLayer(circle);
+      }
+    }
+
+    addNewRegionAction([
+      {
+        leaflet_id: layerGroup._leaflet_id,
+        regionLayer: layerGroup,
+        regionItemInfo: [...regionItemInfo],
+        info: "Part of " + regionInfo,
+        checkedElementsId: [],
+        createdAfterCopying: false,
+        createdAfterCutting: true,
+        createdAfterGrouping: false,
+      },
+      layerGroup._leaflet_id,
+    ]);
+
+    geoJsonLayersArr.forEach((layer: any) => {
+      layer.remove();
+    });
+
+    onMapRegions.forEach((obj: IMapRegion) => {
+      if (obj.leaflet_id === currentRegionId) {
+        obj.checkedElementsId.forEach((_leaflet_id) => {
+          obj.regionLayer.removeLayer(_leaflet_id);
+        });
+      }
+    });
+
+    removeRegionItemsAfterRegionCuttingUpAction();
+
+    setIsChanged((state) => true);
+  };
+
+  //-------------
+
+  const regionCheckedHandler = () => {    
+    setIsChecked((state) => !state);
+  };
+
+  //-------------
 
   return (
     <div className="a__region">
@@ -273,7 +697,7 @@ const Region: FC<IRegion> = ({ obj }) => {
           onClick={
             obj.leaflet_id === currentRegionId
               ? () => setIsOpend((state) => !state)
-              : () => alert("Start editing this region")
+              : () => alert("Start editing of this region")
           }
         >
           <i className="fas fa-pencil-alt"></i>
@@ -299,7 +723,11 @@ const Region: FC<IRegion> = ({ obj }) => {
         <div
           className="a__btn a__cut-btn"
           title="cut up region"
-          onClick={() => alert("it is not implemented")}
+          onClick={
+            obj.leaflet_id === currentRegionId
+              ? cutRegionHandler
+              : () => alert("Start editing of this region.")
+          }
         >
           <i className="fas fa-cut"></i>
         </div>
@@ -307,7 +735,11 @@ const Region: FC<IRegion> = ({ obj }) => {
         <div
           className="a__btn a__copy-btn"
           title="copy region"
-          onClick={() => alert("it is not implemented")}
+          onClick={
+            obj.leaflet_id === currentRegionId
+              ? copyRegionHandler
+              : () => alert("Start editing of this region.")
+          }
         >
           <i className="fas fa-copy"></i>
         </div>
@@ -365,7 +797,16 @@ const Region: FC<IRegion> = ({ obj }) => {
                 : { color: "Brown" }
             }
           ></i>
-        </div>        
+        </div>
+
+        <div className="a__group-checkbox">
+          <input
+            type="checkbox"
+            onChange={regionCheckedHandler}
+            title="select this region to group"
+            disabled={currentRegionId === -1 ? false : true }
+          />
+        </div>
       </div>
 
       <div className={isOpend ? "a__comments a__opened" : "a__comments"}>

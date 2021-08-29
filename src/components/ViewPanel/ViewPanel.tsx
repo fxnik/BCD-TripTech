@@ -14,6 +14,7 @@ import "./viewPanelStyle.css";
 //--------------------------
 
 import dotenv from "dotenv";
+import { IMapRegion, removeRegionAction } from '../../store/reducers/mapReducer';
 dotenv.config();
 
 let APP_API_URL: string | undefined;
@@ -41,9 +42,11 @@ const ViewPanel: FC = () => {
   const {
     setUnsavedLayersIsOpenedAction,
     setSavedLayersIsOpenedAction,
-    setCurrentRegionIdAction,
     addNewRegionAction,
     setUserIsAuthorizedAction,
+    CallChangeIndicatorFunctionAction,
+    removeRegionItemAction,
+    removeRegionAction,
   } = useActions();
 
   //-------------------------
@@ -93,10 +96,16 @@ const ViewPanel: FC = () => {
         leaflet_id: layerGroup._leaflet_id,
         regionLayer: layerGroup,
         regionItemInfo: [],
+        checkedElementsId: [],
+        createdAfterCopying: false,
+        createdAfterCutting: false,
+        createdAfterGrouping: false,
       },
       layerGroup._leaflet_id,
     ]);
   };
+
+  //-------------------
 
   const logOutHandler = async () => {
     let answer: boolean = window.confirm("Do you really want to leave?");
@@ -253,7 +262,7 @@ const ViewPanel: FC = () => {
 
         reader.addEventListener("load", async function () {
           var result: any[] = JSON.parse(reader.result);
-          console.log("Imported file= ", result);
+          //console.log("Imported file= ", result);
 
           if (!Array.isArray(result)) {
             alert("Invalid file data format");
@@ -272,7 +281,7 @@ const ViewPanel: FC = () => {
               sending_data.push([arr[0], JSON.stringify(arr)]);
             });
 
-            console.log("sending_data= ", sending_data);
+            //console.log("sending_data= ", sending_data);
 
             let userData: string | null = localStorage.getItem("userData");
             let token: string;
@@ -326,6 +335,241 @@ const ViewPanel: FC = () => {
 
   //-----------------------
 
+  const groupRegions = () => {
+    let answer: boolean = window.confirm(
+      "Do you really want to group regions?"
+    );
+    if (!answer) return;
+
+    //---------------
+
+    if (currentRegionId !== -1) {
+      alert("Please, stop editing of region");
+      return;
+    }
+
+    //---------------
+
+    let hasCheckedRegions = false,
+      selectedRegionsCounter = 0;
+
+    onMapRegions.forEach((obj: IMapRegion) => {
+      if (obj.regionIsChecked) {
+        hasCheckedRegions = true;
+        selectedRegionsCounter = selectedRegionsCounter + 1;
+      }
+    });
+
+    if (!hasCheckedRegions || selectedRegionsCounter < 2) {
+      alert("Please, select more than one region");
+      return;
+    }
+
+    //---------------
+
+    let regionGeoJson: any = {
+      type: "FeatureCollection",
+      features: [],
+    };
+
+    let all_layers: any[] = [];
+
+    onMapRegions.forEach((obj: IMapRegion) => {
+      if (obj.regionIsChecked) all_layers.push(...obj.regionLayer.getLayers());
+    });
+
+    //console.log('layers=', layers)
+
+    if (all_layers.length === 0) {
+      alert("Operation is interrupted. The regions have no elements.");
+      return;
+    }
+
+    //----------------------
+
+    onMapRegions.forEach((obj: IMapRegion) => {
+      if (obj.regionIsChecked) {
+        let layers: any[] = obj.regionLayer.getLayers();
+        let arr: any[] = obj.regionItemInfo;
+
+        for (let i = 0; i < obj.regionItemInfo.length; i++) {
+          for (let j = 0; j < layers.length; j++) {
+            if (layers[j]._leaflet_id === arr[i][0]) {
+              let geo_json = layers[j].toGeoJSON();
+              geo_json.properties["information"] = arr[i][1];
+
+              if (layers[j] instanceof L.Circle)
+                geo_json.properties["radius"] = layers[j].getRadius();
+
+              regionGeoJson.features.push(geo_json);
+            }
+          }
+        }
+      }
+    });
+
+    //console.log("regionGeoJson= ", regionGeoJson);
+
+    //--------------
+
+    let original_geo_json: any = regionGeoJson;
+    let regionItemInfo: any = [];
+
+    //--------------
+
+    var newLayer = L.geoJSON(original_geo_json, {
+      pointToLayer: function (feature, latlng) {
+        if (feature.properties.radius) {
+          var circle: any = new L.Circle(latlng, feature.properties.radius);
+        }
+        return circle;
+      },
+
+      onEachFeature: function (feature, layer) {},
+    });
+
+    let geoJsonLayersArr: any = newLayer.getLayers();
+
+    //console.log("geoJsonLayersArr=", geoJsonLayersArr);
+
+    //-------------
+
+    let layerGroup: any = L.layerGroup([]);
+    layerGroup.addTo(map!);
+
+    for (let i = 0; i < geoJsonLayersArr.length; i++) {
+      if (geoJsonLayersArr[i].feature.geometry.type === "Polygon") {
+        let polygon: any = L.polygon(geoJsonLayersArr[i]._latlngs).addTo(map!);
+        polygon.pm._shape = "Polygon";
+
+        regionItemInfo.push([
+          polygon._leaflet_id,
+          geoJsonLayersArr[i].feature.properties.information,
+        ]);
+
+        polygon.on("pm:remove", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+          removeRegionItemAction(polygon._leaflet_id);
+        });
+
+        polygon.on("pm:dragend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polygon.on("pm:rotateend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polygon.on("pm:edit", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        layerGroup.addLayer(polygon);
+      } else if (geoJsonLayersArr[i].feature.geometry.type === "LineString") {
+        let polyline: any = L.polyline(geoJsonLayersArr[i]._latlngs).addTo(
+          map!
+        );
+        polyline.pm._shape = "Line";
+
+        regionItemInfo.push([
+          polyline._leaflet_id,
+          geoJsonLayersArr[i].feature.properties.information,
+        ]);
+
+        polyline.on("pm:remove", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+          removeRegionItemAction(polyline._leaflet_id);
+        });
+
+        polyline.on("pm:dragend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polyline.on("pm:rotateend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        polyline.on("pm:edit", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        layerGroup.addLayer(polyline);
+      } else if (
+        geoJsonLayersArr[i].feature.geometry.type === "Point" &&
+        geoJsonLayersArr[i].feature.properties.radius
+      ) {
+        let circle: any = L.circle(
+          geoJsonLayersArr[i]._latlng,
+          geoJsonLayersArr[i].feature.properties.radius
+        ).addTo(map!);
+        circle.pm._shape = "Circle";
+
+        regionItemInfo.push([
+          circle._leaflet_id,
+          geoJsonLayersArr[i].feature.properties.information,
+        ]);
+
+        circle.on("pm:remove", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+          removeRegionItemAction(circle._leaflet_id);
+        });
+
+        circle.on("pm:dragend", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        circle.on("pm:edit", (event: any) => {
+          CallChangeIndicatorFunctionAction();
+        });
+
+        layerGroup.addLayer(circle);
+      }
+    }
+
+    //----------------------
+
+    let all_info_arr: any[] = onMapRegions.map((obj: IMapRegion) => {
+      if (obj.regionIsChecked) return obj.info || "";
+    });
+
+    //----------------------
+
+    onMapRegions.forEach((obj: IMapRegion) => {
+
+      if (obj.regionIsChecked) {
+        setTimeout(((obj)=>{
+          return ()=>{
+            obj.regionLayer.remove();
+            removeRegionAction(obj.leaflet_id)
+          }
+        })(obj), 0)
+      };
+
+    });
+
+    //----------------------
+
+    addNewRegionAction([
+      {
+        leaflet_id: layerGroup._leaflet_id,
+        regionLayer: layerGroup,
+        regionItemInfo: [...regionItemInfo],
+        info: all_info_arr.join("") || "Group of regions",
+        checkedElementsId: [],
+        createdAfterCopying: false,
+        createdAfterCutting: false,
+        createdAfterGrouping: true,
+      },
+      layerGroup._leaflet_id,
+    ]);
+
+    geoJsonLayersArr.forEach((layer: any) => {
+      layer.remove();
+    });
+  };
+
+  //-----------------------
+
   return (
     <div
       className={
@@ -373,14 +617,14 @@ const ViewPanel: FC = () => {
           }
         >
           <i className="fas fa-plus"></i>
-        </div>        
+        </div>
 
         <div
           className={
             savedLayersIsOpened ? "a__group-btn a__disabled" : "a__group-btn"
           }
           title="group regions"
-          onClick={() => alert("it is not implemented")}
+          onClick={groupRegions}
         >
           <i className="fas fa-object-group"></i>
         </div>
@@ -428,7 +672,7 @@ const ViewPanel: FC = () => {
         >
           <i className="fas fa-sign-out-alt"></i>
         </div>
-      </div>      
+      </div>
 
       <div
         className={

@@ -12,7 +12,12 @@ import {
   addNewRegionAction,
   removeRegionItemAction,
   updateRegionItemInfoAction,  
-  CallChangeIndicatorFunctionAction,    
+  CallChangeIndicatorFunctionAction, 
+  addCheckedElementIdAction,
+  removeCheckedElementIdAction,
+  removeRegionItemsAfterRegionCuttingUpAction,
+  setCheckedRegionAction,
+  unsetCheckedRegionAction,
 } from "../store/reducers/mapReducer";
 
 import { setUserIsAuthorizedAction } from "../store/reducers/authReducer";
@@ -33,7 +38,12 @@ export const useActions = () => {
       addNewRegionAction,
       removeRegionItemAction,
       updateRegionItemInfoAction,      
-      CallChangeIndicatorFunctionAction,           
+      CallChangeIndicatorFunctionAction, 
+      addCheckedElementIdAction,
+      removeCheckedElementIdAction,
+      removeRegionItemsAfterRegionCuttingUpAction,
+      setCheckedRegionAction,
+      unsetCheckedRegionAction,
 
       //-----------------------------
       setUserIsAuthorizedAction,

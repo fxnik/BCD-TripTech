@@ -40,7 +40,8 @@
   border-radius: 4px;
 }
 
-.a__region-item > .a__tool-panel > .a__btn {
+.a__region-item > .a__tool-panel > .a__btn,
+.a__region-item > .a__tool-panel > .a__cut-checkbox {
   position: relative;
   width: 16px;
   height: 16px;
@@ -48,6 +49,24 @@
   border-radius: 2px;
   background: transparent;
   margin: 0 2px 0 1px;
+}
+
+.a__region-item > .a__tool-panel > .a__cut-checkbox{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.a__region-item > .a__tool-panel > .a__cut-checkbox > input{
+  width: 13px;
+  height: 13px; 
+  transition: 0.3s;
+  /* appearance: none; */ 
+  /* background: rgb(56, 218, 64); */
+}
+
+.a__region-item > .a__tool-panel > .a__cut-checkbox > input:hover {
+  box-shadow: 0px 0px 2px rgb(26, 25, 25);
 }
 
 .a__region-item > .a__tool-panel > .a__btn > .fas {

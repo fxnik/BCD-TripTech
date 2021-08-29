@@ -6,6 +6,11 @@ export interface IMapRegion {
   regionItemInfo: any[];
   uuid?: string;
   info?: string;
+  checkedElementsId: number[];
+  createdAfterCopying: boolean;
+  createdAfterCutting: boolean;
+  createdAfterGrouping: boolean;
+  regionIsChecked?: boolean;
 }
 
 interface IAppState {
@@ -32,6 +37,11 @@ export enum AppActionTypes {
   REMOVE_REGION_ITEM = "REMOVE_REGION_ITEM",
   UPDATE_REGION_ITEM_INFO = "UPDATE_REGION_ITEM_INFO",
   CALL_CHANGE_INDICATOR_FUNCTION = "CALL_CHANGE_INDICATOR_FUNCTION",
+  ADD_CHECKED_ELEMENT_ID = "ADD_CHECKED_ELEMENT_ID",
+  REMOVE_CHECKED_ELEMENT_ID = "REMOVE_CHECKED_ELEMENT_ID",
+  REMOVE_REGION_ITEMS_AFTER_REGION_CUTTING_UP = "REMOVE_REGION_ITEMS_AFTER_REGION_CUTTING_UP",
+  SET_CHECKED_REGION = "SET_CHECKED_REGION",
+  UNSET_CHECKED_REGION = "UNSET_CHECKED_REGION",
 }
 
 //---------------------------
@@ -96,6 +106,31 @@ interface ICallChangeIndicatorFunctionAction {
   payload: void;
 }
 
+interface IAddCheckedElementIdAction {
+  type: AppActionTypes.ADD_CHECKED_ELEMENT_ID;
+  payload: number;
+}
+
+interface IRemoveCheckedElementIdAction {
+  type: AppActionTypes.REMOVE_CHECKED_ELEMENT_ID;
+  payload: number;
+}
+
+interface IRemoveRegionItemsAfterRegionCuttingUpAction { 
+  type: AppActionTypes.REMOVE_REGION_ITEMS_AFTER_REGION_CUTTING_UP;
+  payload: void;
+}
+
+interface ISetCheckedRegionAction { 
+  type: AppActionTypes.SET_CHECKED_REGION;
+  payload: number;
+}
+
+interface IUnsetCheckedRegionAction { 
+  type: AppActionTypes.UNSET_CHECKED_REGION;
+  payload: number;
+}
+
 export type AppAction =
   | ISetMapPointerAction
   | ISetViewPanelIsOpenedAction
@@ -108,7 +143,12 @@ export type AppAction =
   | IAddNewRegionAction
   | IRemoveRegionItemAction
   | IUpdateRegionItemInfoAction
-  | ICallChangeIndicatorFunctionAction;
+  | ICallChangeIndicatorFunctionAction
+  | IAddCheckedElementIdAction
+  | IRemoveCheckedElementIdAction
+  | IRemoveRegionItemsAfterRegionCuttingUpAction
+  | ISetCheckedRegionAction
+  | IUnsetCheckedRegionAction;
 
 //--------------------------
 
@@ -147,7 +187,7 @@ export const mapReducer = (state = initialState, action: AppAction) => {
       let layer: any = action.payload;
 
       let newOnMapRegions = state.onMapRegions.map((obj: IMapRegion) => {
-        if (obj.leaflet_id === state.currentRegionId) {          
+        if (obj.leaflet_id === state.currentRegionId) {
           obj.regionItemInfo.push([layer._leaflet_id, "New element"]);
         }
         return obj;
@@ -205,7 +245,7 @@ export const mapReducer = (state = initialState, action: AppAction) => {
           newRegionItemInfoArr = obj.regionItemInfo.filter(
             (arr) => arr[0] !== action.payload
           );
-          obj.regionItemInfo = newRegionItemInfoArr;          
+          obj.regionItemInfo = newRegionItemInfoArr;
         }
         return obj;
       });
@@ -215,7 +255,7 @@ export const mapReducer = (state = initialState, action: AppAction) => {
     //--------------------
     case AppActionTypes.UPDATE_REGION_ITEM_INFO:
       let layer_id = action.payload[0];
-      let info_str = action.payload[1];      
+      let info_str = action.payload[1];
 
       let arr: any[] = state.onMapRegions.map((obj: IMapRegion) => {
         if (obj.leaflet_id === state.currentRegionId) {
@@ -225,13 +265,96 @@ export const mapReducer = (state = initialState, action: AppAction) => {
         }
         return obj;
       });
-      return { ...state, onMapRegions: [...arr]};
+
+      return { ...state, onMapRegions: [...arr] };
 
     //---------------------
     case AppActionTypes.CALL_CHANGE_INDICATOR_FUNCTION:
       return {
         ...state,
         regionHasUnsavedChanges: !state.regionHasUnsavedChanges,
+      };
+
+    //---------------------
+    case AppActionTypes.ADD_CHECKED_ELEMENT_ID:
+      let add_id_arr: any[] = state.onMapRegions.map((obj: IMapRegion) => {
+        if (obj.leaflet_id === state.currentRegionId) {
+          obj.checkedElementsId.push(action.payload);
+          //console.log("-mapReducer- add obj.checkedElementsId= ", obj.checkedElementsId);
+        }
+        return obj;
+      });
+
+      return {
+        ...state,
+        onMapRegions: [...add_id_arr],
+      };
+
+    //---------------------
+    case AppActionTypes.REMOVE_CHECKED_ELEMENT_ID:
+      let remove_id_arr: any[] = state.onMapRegions.map((obj: IMapRegion) => {
+        if (obj.leaflet_id === state.currentRegionId) {
+          obj.checkedElementsId = obj.checkedElementsId.filter(
+            (element) => element !== action.payload
+          );
+          //console.log("-mapReducer- remove obj.checkedElementsId= ", obj.checkedElementsId);
+        }
+        return obj;
+      });
+
+      return {
+        ...state,
+        onMapRegions: [...remove_id_arr],
+      };
+
+    //------------------
+    case AppActionTypes.REMOVE_REGION_ITEMS_AFTER_REGION_CUTTING_UP:
+      let remove_items_arr = state.onMapRegions.map((obj: IMapRegion) => {
+        if (obj.leaflet_id === state.currentRegionId) {
+
+          obj.checkedElementsId.forEach(id => {
+            obj.regionItemInfo = obj.regionItemInfo.filter(
+              (arr) => arr[0] !== id
+            );
+          }) 
+          
+          obj.checkedElementsId = []         
+        }
+        return obj;
+      });
+
+      return { ...state, onMapRegions: [...remove_items_arr] };
+
+    //---------------------
+
+    case AppActionTypes.SET_CHECKED_REGION:
+      let set_checked_region_arr: any[] = state.onMapRegions.map((obj: IMapRegion) => {
+        if (obj.leaflet_id === action.payload) {
+          obj.regionIsChecked = true 
+          //console.log('SET obj.regionIsChecked=', obj.regionIsChecked)         
+        }
+        return obj;
+      });
+
+      return {
+        ...state,
+        onMapRegions: [...set_checked_region_arr],
+      };
+
+    //---------------------
+
+    case AppActionTypes.UNSET_CHECKED_REGION:
+      let unset_checked_region_arr: any[] = state.onMapRegions.map((obj: IMapRegion) => {
+        if (obj.leaflet_id === action.payload) {
+          obj.regionIsChecked = false
+          //console.log('UNSET obj.regionIsChecked=', obj.regionIsChecked)          
+        }
+        return obj;
+      });
+
+      return {
+        ...state,
+        onMapRegions: [...unset_checked_region_arr],
       };
 
     //---------------------
@@ -312,4 +435,29 @@ export const CallChangeIndicatorFunctionAction = (
 ): AppAction => ({
   type: AppActionTypes.CALL_CHANGE_INDICATOR_FUNCTION,
   payload: payload,
-});  
+});
+
+export const addCheckedElementIdAction = (payload: number): AppAction => ({
+  type: AppActionTypes.ADD_CHECKED_ELEMENT_ID,
+  payload: payload,
+});
+
+export const removeCheckedElementIdAction = (payload: number): AppAction => ({
+  type: AppActionTypes.REMOVE_CHECKED_ELEMENT_ID,
+  payload: payload,
+});
+
+export const removeRegionItemsAfterRegionCuttingUpAction = (payload: void): AppAction => ({
+  type: AppActionTypes.REMOVE_REGION_ITEMS_AFTER_REGION_CUTTING_UP,
+  payload: payload,
+});
+
+export const setCheckedRegionAction = (payload: number): AppAction => ({
+  type: AppActionTypes.SET_CHECKED_REGION,
+  payload: payload,
+});
+
+export const unsetCheckedRegionAction = (payload: number): AppAction => ({
+  type: AppActionTypes.UNSET_CHECKED_REGION,
+  payload: payload,
+});

@@ -250,6 +250,10 @@ const RegionFromDb: FC<IRegionFromDb> = ({ info, uuid, reloader }) => {
         regionItemInfo: [...regionItemInfo],
         uuid: payload.uuid,
         info: original_json[0],
+        checkedElementsId: [],
+        createdAfterCopying: false,
+        createdAfterCutting: false,
+        createdAfterGrouping: false,
       },
       layerGroup._leaflet_id,
     ]);
