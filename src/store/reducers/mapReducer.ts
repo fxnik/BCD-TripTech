@@ -116,17 +116,17 @@ interface IRemoveCheckedElementIdAction {
   payload: number;
 }
 
-interface IRemoveRegionItemsAfterRegionCuttingUpAction { 
+interface IRemoveRegionItemsAfterRegionCuttingUpAction {
   type: AppActionTypes.REMOVE_REGION_ITEMS_AFTER_REGION_CUTTING_UP;
   payload: void;
 }
 
-interface ISetCheckedRegionAction { 
+interface ISetCheckedRegionAction {
   type: AppActionTypes.SET_CHECKED_REGION;
   payload: number;
 }
 
-interface IUnsetCheckedRegionAction { 
+interface IUnsetCheckedRegionAction {
   type: AppActionTypes.UNSET_CHECKED_REGION;
   payload: number;
 }
@@ -311,14 +311,13 @@ export const mapReducer = (state = initialState, action: AppAction) => {
     case AppActionTypes.REMOVE_REGION_ITEMS_AFTER_REGION_CUTTING_UP:
       let remove_items_arr = state.onMapRegions.map((obj: IMapRegion) => {
         if (obj.leaflet_id === state.currentRegionId) {
-
-          obj.checkedElementsId.forEach(id => {
+          obj.checkedElementsId.forEach((id) => {
             obj.regionItemInfo = obj.regionItemInfo.filter(
               (arr) => arr[0] !== id
             );
-          }) 
-          
-          obj.checkedElementsId = []         
+          });
+
+          obj.checkedElementsId = [];
         }
         return obj;
       });
@@ -328,13 +327,15 @@ export const mapReducer = (state = initialState, action: AppAction) => {
     //---------------------
 
     case AppActionTypes.SET_CHECKED_REGION:
-      let set_checked_region_arr: any[] = state.onMapRegions.map((obj: IMapRegion) => {
-        if (obj.leaflet_id === action.payload) {
-          obj.regionIsChecked = true 
-          //console.log('SET obj.regionIsChecked=', obj.regionIsChecked)         
+      let set_checked_region_arr: any[] = state.onMapRegions.map(
+        (obj: IMapRegion) => {
+          if (obj.leaflet_id === action.payload) {
+            obj.regionIsChecked = true;
+            //console.log('SET obj.regionIsChecked=', obj.regionIsChecked)
+          }
+          return obj;
         }
-        return obj;
-      });
+      );
 
       return {
         ...state,
@@ -344,13 +345,15 @@ export const mapReducer = (state = initialState, action: AppAction) => {
     //---------------------
 
     case AppActionTypes.UNSET_CHECKED_REGION:
-      let unset_checked_region_arr: any[] = state.onMapRegions.map((obj: IMapRegion) => {
-        if (obj.leaflet_id === action.payload) {
-          obj.regionIsChecked = false
-          //console.log('UNSET obj.regionIsChecked=', obj.regionIsChecked)          
+      let unset_checked_region_arr: any[] = state.onMapRegions.map(
+        (obj: IMapRegion) => {
+          if (obj.leaflet_id === action.payload) {
+            obj.regionIsChecked = false;
+            //console.log('UNSET obj.regionIsChecked=', obj.regionIsChecked)
+          }
+          return obj;
         }
-        return obj;
-      });
+      );
 
       return {
         ...state,
@@ -447,7 +450,9 @@ export const removeCheckedElementIdAction = (payload: number): AppAction => ({
   payload: payload,
 });
 
-export const removeRegionItemsAfterRegionCuttingUpAction = (payload: void): AppAction => ({
+export const removeRegionItemsAfterRegionCuttingUpAction = (
+  payload: void
+): AppAction => ({
   type: AppActionTypes.REMOVE_REGION_ITEMS_AFTER_REGION_CUTTING_UP,
   payload: payload,
 });

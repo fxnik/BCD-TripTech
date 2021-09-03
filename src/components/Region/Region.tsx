@@ -43,7 +43,7 @@ const Region: FC<IRegion> = ({ obj }) => {
     CallChangeIndicatorFunctionAction,
     removeRegionItemsAfterRegionCuttingUpAction,
     setCheckedRegionAction,
-    unsetCheckedRegionAction
+    unsetCheckedRegionAction,
   } = useActions();
 
   //-------------------
@@ -103,9 +103,9 @@ const Region: FC<IRegion> = ({ obj }) => {
 
   useEffect(() => {
     if (isChecked) {
-      setCheckedRegionAction(obj.leaflet_id)
+      setCheckedRegionAction(obj.leaflet_id);
     } else {
-      unsetCheckedRegionAction(obj.leaflet_id)
+      unsetCheckedRegionAction(obj.leaflet_id);
     }
   }, [isChecked]);
 
@@ -336,6 +336,7 @@ const Region: FC<IRegion> = ({ obj }) => {
 
         polygon.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(polygon._leaflet_id);
           removeRegionItemAction(polygon._leaflet_id);
         });
 
@@ -365,6 +366,7 @@ const Region: FC<IRegion> = ({ obj }) => {
 
         polyline.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(polyline._leaflet_id);
           removeRegionItemAction(polyline._leaflet_id);
         });
 
@@ -398,6 +400,7 @@ const Region: FC<IRegion> = ({ obj }) => {
 
         circle.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(circle._leaflet_id);
           removeRegionItemAction(circle._leaflet_id);
         });
 
@@ -443,9 +446,9 @@ const Region: FC<IRegion> = ({ obj }) => {
 
     //------------
 
-    if(obj.checkedElementsId.length === 0){
-      alert('To cut up region you need to select a few elements')
-      return
+    if (obj.checkedElementsId.length === 0) {
+      alert("To cut up region you need to select a few elements");
+      return;
     }
 
     //------------
@@ -460,7 +463,7 @@ const Region: FC<IRegion> = ({ obj }) => {
     if (layers.length === 0) {
       alert("Operation is interrupted. The region has no elements.");
       return;
-    }    
+    }
 
     //------------
 
@@ -536,6 +539,7 @@ const Region: FC<IRegion> = ({ obj }) => {
 
         polygon.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(polygon._leaflet_id);
           removeRegionItemAction(polygon._leaflet_id);
         });
 
@@ -565,6 +569,7 @@ const Region: FC<IRegion> = ({ obj }) => {
 
         polyline.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(polyline._leaflet_id);
           removeRegionItemAction(polyline._leaflet_id);
         });
 
@@ -598,6 +603,7 @@ const Region: FC<IRegion> = ({ obj }) => {
 
         circle.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(circle._leaflet_id);
           removeRegionItemAction(circle._leaflet_id);
         });
 
@@ -646,7 +652,7 @@ const Region: FC<IRegion> = ({ obj }) => {
 
   //-------------
 
-  const regionCheckedHandler = () => {    
+  const regionCheckedHandler = () => {
     setIsChecked((state) => !state);
   };
 
@@ -804,7 +810,7 @@ const Region: FC<IRegion> = ({ obj }) => {
             type="checkbox"
             onChange={regionCheckedHandler}
             title="select this region to group"
-            disabled={currentRegionId === -1 ? false : true }
+            disabled={currentRegionId === -1 ? false : true}
           />
         </div>
       </div>

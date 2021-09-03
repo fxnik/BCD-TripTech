@@ -14,7 +14,10 @@ import "./viewPanelStyle.css";
 //--------------------------
 
 import dotenv from "dotenv";
-import { IMapRegion, removeRegionAction } from '../../store/reducers/mapReducer';
+import {
+  IMapRegion,
+  removeRegionAction,
+} from "../../store/reducers/mapReducer";
 dotenv.config();
 
 let APP_API_URL: string | undefined;
@@ -449,6 +452,7 @@ const ViewPanel: FC = () => {
 
         polygon.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(polygon._leaflet_id);
           removeRegionItemAction(polygon._leaflet_id);
         });
 
@@ -478,6 +482,7 @@ const ViewPanel: FC = () => {
 
         polyline.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(polyline._leaflet_id);
           removeRegionItemAction(polyline._leaflet_id);
         });
 
@@ -511,6 +516,7 @@ const ViewPanel: FC = () => {
 
         circle.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(circle._leaflet_id);
           removeRegionItemAction(circle._leaflet_id);
         });
 
@@ -535,16 +541,17 @@ const ViewPanel: FC = () => {
     //----------------------
 
     onMapRegions.forEach((obj: IMapRegion) => {
-
       if (obj.regionIsChecked) {
-        setTimeout(((obj)=>{
-          return ()=>{
-            obj.regionLayer.remove();
-            removeRegionAction(obj.leaflet_id)
-          }
-        })(obj), 0)
-      };
-
+        setTimeout(
+          ((obj) => {
+            return () => {
+              obj.regionLayer.remove();
+              removeRegionAction(obj.leaflet_id);
+            };
+          })(obj),
+          0
+        );
+      }
     });
 
     //----------------------

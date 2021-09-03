@@ -1,3 +1,5 @@
+sudo npx create-react-app . --template typescript --use-npm
+
 sudo npm i react-draggable
 
 https://github.com/react-grid-layout/react-draggable/blob/HEAD/example/example.js

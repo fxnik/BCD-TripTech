@@ -1,7 +1,7 @@
 import { FC, useEffect } from "react";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useActions } from "../../hooks/useActions";
-import {IMapRegion} from '../../store/reducers/mapReducer'
+import { IMapRegion } from "../../store/reducers/mapReducer";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -31,7 +31,7 @@ const LeafletMap: FC = () => {
     addLayerToRegionAction,
     updateRegionAfterCuttingAction,
     removeRegionItemAction,
-    CallChangeIndicatorFunctionAction,        
+    CallChangeIndicatorFunctionAction,
   } = useActions();
 
   const setMapPointer = (map: L.DrawMap) => {
@@ -82,20 +82,23 @@ const LeafletMap: FC = () => {
         event.layer.remove();
 
         polygon.on("pm:remove", (event: any) => {
-          console.log("pm:remove= ", event);
+          onMapRegions.forEach((obj: IMapRegion) => {
+            if (obj.leaflet_id === currentRegionId) {
+              obj.regionLayer.removeLayer(polygon._leaflet_id);
+            }
+          });
 
           removeRegionItemAction(polygon._leaflet_id);
         });
 
         CallChangeIndicatorFunctionAction();
 
-        onMapRegions.forEach((obj: IMapRegion) => { 
+        onMapRegions.forEach((obj: IMapRegion) => {
           if (obj.leaflet_id === currentRegionId) {
-            obj.regionLayer.addLayer(polygon);            
-          }          
+            obj.regionLayer.addLayer(polygon);
+          }
         });
         addLayerToRegionAction(polygon);
-
       } else if (event.shape === "Rectangle") {
         let rectangle: any = L.rectangle(
           event.layer._latlngs,
@@ -105,19 +108,24 @@ const LeafletMap: FC = () => {
         event.layer.remove();
 
         rectangle.on("pm:remove", (event: any) => {
+          onMapRegions.forEach((obj: IMapRegion) => {
+            if (obj.leaflet_id === currentRegionId) {
+              obj.regionLayer.removeLayer(rectangle._leaflet_id);
+            }
+          });
+
           removeRegionItemAction(rectangle._leaflet_id);
         });
 
         CallChangeIndicatorFunctionAction();
 
-        onMapRegions.forEach((obj: IMapRegion) => { 
+        onMapRegions.forEach((obj: IMapRegion) => {
           if (obj.leaflet_id === currentRegionId) {
-            obj.regionLayer.addLayer(rectangle);            
-          }          
+            obj.regionLayer.addLayer(rectangle);
+          }
         });
 
-        addLayerToRegionAction(rectangle);      
-
+        addLayerToRegionAction(rectangle);
       } else if (event.shape === "Line") {
         let polyline: any = L.polyline(
           event.layer._latlngs,
@@ -127,18 +135,23 @@ const LeafletMap: FC = () => {
         event.layer.remove();
 
         polyline.on("pm:remove", (event: any) => {
+          onMapRegions.forEach((obj: IMapRegion) => {
+            if (obj.leaflet_id === currentRegionId) {
+              obj.regionLayer.removeLayer(polyline._leaflet_id);
+            }
+          });
+
           removeRegionItemAction(polyline._leaflet_id);
         });
 
         CallChangeIndicatorFunctionAction();
 
-        onMapRegions.forEach((obj: IMapRegion) => { 
+        onMapRegions.forEach((obj: IMapRegion) => {
           if (obj.leaflet_id === currentRegionId) {
-            obj.regionLayer.addLayer(polyline);            
-          }          
+            obj.regionLayer.addLayer(polyline);
+          }
         });
         addLayerToRegionAction(polyline);
-
       } else if (event.shape === "Circle") {
         let circle: any = L.circle(
           event.layer._latlng,
@@ -148,15 +161,21 @@ const LeafletMap: FC = () => {
         event.layer.remove();
 
         circle.on("pm:remove", (event: any) => {
+          onMapRegions.forEach((obj: IMapRegion) => {
+            if (obj.leaflet_id === currentRegionId) {
+              obj.regionLayer.removeLayer(circle._leaflet_id);
+            }
+          });
+
           removeRegionItemAction(circle._leaflet_id);
         });
 
         CallChangeIndicatorFunctionAction();
 
-        onMapRegions.forEach((obj: IMapRegion) => { 
+        onMapRegions.forEach((obj: IMapRegion) => {
           if (obj.leaflet_id === currentRegionId) {
-            obj.regionLayer.addLayer(circle);            
-          }          
+            obj.regionLayer.addLayer(circle);
+          }
         });
         addLayerToRegionAction(circle);
       }
@@ -186,6 +205,12 @@ const LeafletMap: FC = () => {
           polyline.pm._shape = "Line";
 
           polyline.on("pm:remove", (event: any) => {
+            onMapRegions.forEach((obj: IMapRegion) => {
+              if (obj.leaflet_id === currentRegionId) {
+                obj.regionLayer.removeLayer(event.layer._leaflet_id);
+              }
+            });
+
             removeRegionItemAction(event.layer._leaflet_id);
           });
 
@@ -198,10 +223,10 @@ const LeafletMap: FC = () => {
         //----------------
         onMapRegions.forEach((obj: IMapRegion) => {
           if (obj.leaflet_id === currentRegionId) {
-            obj.regionLayer.removeLayer(prev_leaflet_id);  
-            
+            obj.regionLayer.removeLayer(prev_leaflet_id);
+
             new_layer_arr.forEach((element) => {
-              obj.regionLayer.addLayer(element);              
+              obj.regionLayer.addLayer(element);
             });
           }
           return obj;
@@ -226,6 +251,12 @@ const LeafletMap: FC = () => {
           polygon.pm._shape = "Polygon";
 
           polygon.on("pm:remove", (event: any) => {
+            onMapRegions.forEach((obj: IMapRegion) => {
+              if (obj.leaflet_id === currentRegionId) {
+                obj.regionLayer.removeLayer(event.layer._leaflet_id);
+              }
+            });
+
             removeRegionItemAction(event.layer._leaflet_id);
           });
 
@@ -243,6 +274,12 @@ const LeafletMap: FC = () => {
             polygon.pm._shape = "Polygon";
 
             polygon.on("pm:remove", (event: any) => {
+              onMapRegions.forEach((obj: IMapRegion) => {
+                if (obj.leaflet_id === currentRegionId) {
+                  obj.regionLayer.removeLayer(event.layer._leaflet_id);
+                }
+              });
+
               removeRegionItemAction(event.layer._leaflet_id);
             });
 
@@ -258,10 +295,10 @@ const LeafletMap: FC = () => {
         //----------------
         onMapRegions.forEach((obj: IMapRegion) => {
           if (obj.leaflet_id === currentRegionId) {
-            obj.regionLayer.removeLayer(prev_leaflet_id);  
-            
+            obj.regionLayer.removeLayer(prev_leaflet_id);
+
             new_layer_arr.forEach((element) => {
-              obj.regionLayer.addLayer(element);              
+              obj.regionLayer.addLayer(element);
             });
           }
           return obj;

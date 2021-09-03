@@ -3,6 +3,7 @@ import { IRegionFromDb, IDataBaseRegionModel } from "../../types/types";
 import { useHttp } from "../../hooks/useHttp";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useActions } from "../../hooks/useActions";
+import { IMapRegion } from "../../store/reducers/mapReducer";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./regionFromDbStyle.css";
@@ -166,6 +167,7 @@ const RegionFromDb: FC<IRegionFromDb> = ({ info, uuid, reloader }) => {
 
         polygon.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(polygon._leaflet_id);
           removeRegionItemAction(polygon._leaflet_id);
         });
 
@@ -195,6 +197,7 @@ const RegionFromDb: FC<IRegionFromDb> = ({ info, uuid, reloader }) => {
 
         polyline.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(polyline._leaflet_id);
           removeRegionItemAction(polyline._leaflet_id);
         });
 
@@ -228,6 +231,7 @@ const RegionFromDb: FC<IRegionFromDb> = ({ info, uuid, reloader }) => {
 
         circle.on("pm:remove", (event: any) => {
           CallChangeIndicatorFunctionAction();
+          layerGroup.removeLayer(circle._leaflet_id);
           removeRegionItemAction(circle._leaflet_id);
         });
 
